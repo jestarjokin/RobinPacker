@@ -10,4 +10,10 @@ class RulesData(object):
         self.gameScriptIndexes = None
         self.gameScriptData = None
         self.rulesChunk9 = None
+        self.rulesChunk11 = None # nothing required for chunk 10
+        self.rectangles = None
+        self.interfaceTwoStepAction = None
+        self.interfaceHotspotsX = None
+        self.interfaceHotspotsY = None
+        self.keyboardMapping = None
 

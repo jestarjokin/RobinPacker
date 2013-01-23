@@ -1,5 +1,5 @@
 #! /usr/bin/python
 
-class RulesPacker(object):
+class RulesBinaryPacker(object):
     def pack(self):
         pass

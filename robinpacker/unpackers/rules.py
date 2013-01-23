@@ -4,12 +4,13 @@ import struct
 
 from robinpacker.structs.character import CharacterData
 from robinpacker.structs.rules import RulesData
+from robinpacker.structs.rect import RectData
 
 def unpack(rfile, format):
     result = struct.unpack(format, rfile.read(struct.calcsize(format)))
     return result[0] if len(result) == 1 else result
 
-class RulesUnpacker(object):
+class RulesBinaryUnpacker(object):
     def unpack(self, fname):
         outData = RulesData()
         with file(fname, 'rb') as rfile:
@@ -92,7 +93,51 @@ class RulesUnpacker(object):
                 if totalSize:
                     outData.rulesChunk11 = rfile.read(totalSize)
 
-            # Chunk 12
+            # Chunk 12 - rectangles
+            format = '<H'
+            numEntries = unpack(rfile, format)
+            rectangles = []
+            format = '8B'
+            for i in xrange(numEntries):
+                rectData = RectData(
+                    *(unpack(rfile, format))
+                )
+                rectangles.append(rectData)
+            outData.rectangles = rectangles
 
+            # Chunk 13 - interface hotspots
+            outData.interfaceTwoStepAction = rfile.read(20) # might be a byte array
+            format = '<20h'
+            outData.interfaceHotspotsX = unpack(rfile, format)
+            outData.interfaceHotspotsY = unpack(rfile, format)
+            keyboardMapping = []
+            # TODO: Fix these
+            KEYCODE_SPACE = 'KEYCODE_SPACE'
+            KEYCODE_RETURN = 'KEYCODE_RETURN'
+            KEYCODE_INVALID = 'KEYCODE_INVALID'
+            for i in xrange(20):
+                currByte = unpack(rfile, 'B')
+                if currByte == 0x20:
+                    keyboardMapping.append(KEYCODE_SPACE)
+                elif currByte == 0x0D:
+                    keyboardMapping.append(KEYCODE_RETURN)
+                elif currByte == 0xFF: # hack?
+                    keyboardMapping.append(KEYCODE_INVALID)
+                elif currByte == 0x00: # hack?
+                    keyboardMapping.append(KEYCODE_INVALID)
+                else:
+                    assert (currByte > 0x40 and (currByte <= 0x41 + 26))
+                    keyboardMapping.append("TODO")
+                    # Constants from ScummVM
+#                    static const Common::KeyCode keybMappingArray[26] = {
+#                        Common::KEYCODE_a, Common::KEYCODE_b, Common::KEYCODE_c, Common::KEYCODE_d, Common::KEYCODE_e,
+#                                                                                                            Common::KEYCODE_f, Common::KEYCODE_g, Common::KEYCODE_h, Common::KEYCODE_i, Common::KEYCODE_j,
+#                                                                                                                                                                                                Common::KEYCODE_k, Common::KEYCODE_l, Common::KEYCODE_m, Common::KEYCODE_n, Common::KEYCODE_o,
+#                                                                                                                                                                                                                                                                                    Common::KEYCODE_p, Common::KEYCODE_q, Common::KEYCODE_r, Common::KEYCODE_s, Common::KEYCODE_t,
+#                                                                                                                                                                                                                                                                                                                                                                        Common::KEYCODE_u, Common::KEYCODE_v, Common::KEYCODE_w, Common::KEYCODE_x, Common::KEYCODE_y,
+#                                                                                                                                                                                                                                                                                                                                                                                                                                                            Common::KEYCODE_z};
+                    #keyboardMapping.append(keyboardMappingArray[currByte - 0x41])
+            outData.keyboardMapping = keyboardMapping
+        return outData
 
 
