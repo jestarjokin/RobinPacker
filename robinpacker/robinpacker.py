@@ -4,11 +4,15 @@ import logging
 from optparse import OptionParser
 import sys
 
+from unpackers.rules import RulesBinaryUnpacker
+from exporters.rules import RulesXmlExporter
+
 def configure_logging():
     logging.basicConfig(format="", level=logging.DEBUG)
 
 def validate_args(args, options):
-    if len(args) < 0:
+    if len(args) < 2:
+        logging.error("No input or output filename specified")
         return False
     elif not options.pack and not options.unpack:
         logging.error("You must specify either -p or -u.")
@@ -17,7 +21,7 @@ def validate_args(args, options):
 
 def main(args):
     configure_logging()
-    oparser = OptionParser(usage="%prog [options] arg1 arg2",
+    oparser = OptionParser(usage="%prog [options] input_file output_file",
         version="1.0")
 
     oparser.add_option("-p", "--pack", action="store_true",
@@ -34,8 +38,15 @@ def main(args):
         return 1
 
     try:
-        # TODO: call application functions here
-        raise NotImplementedException("Replace this exception with your code")
+        if options.unpack:
+            input_fname = args[0]
+            output_fname = args[1]
+            unpacker = RulesBinaryUnpacker()
+            rules = unpacker.unpack(input_fname)
+            exporter = RulesXmlExporter()
+            exporter.export(rules, output_fname)
+        else:
+            raise NotImplementedError()
     # TODO: add sepcific exception handling if required.
     except Exception, e:
         logging.exception("Unhandled exception: \n")

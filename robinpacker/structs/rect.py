@@ -1,3 +1,4 @@
+#! /usr/bin/python
 
 class RectData(object):
     def __init__(self,

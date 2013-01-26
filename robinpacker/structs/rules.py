@@ -2,7 +2,7 @@
 
 class RulesData(object):
     def __init__(self):
-        self.chunk1 = None
+        self.chunk1PointArray = None
         self.characters = None
         self.strings = None
         self.scripts = None
@@ -10,7 +10,8 @@ class RulesData(object):
         self.gameScriptIndexes = None
         self.gameScriptData = None
         self.rulesChunk9 = None
-        self.rulesChunk11 = None # nothing required for chunk 10
+        self.chunk10Indexes = None
+        self.rulesChunk11 = None
         self.rectangles = None
         self.interfaceTwoStepAction = None
         self.interfaceHotspotsX = None

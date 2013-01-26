@@ -1,3 +1,4 @@
+#! /usr/bin/python
 
 class CharacterData(object):
     def __init__(self):

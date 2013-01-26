@@ -2,9 +2,10 @@
 
 import struct
 
-from robinpacker.structs.character import CharacterData
-from robinpacker.structs.rules import RulesData
-from robinpacker.structs.rect import RectData
+from structs.character import CharacterData
+from structs.rules import RulesData
+from structs.rect import RectData
+from structs.point import PointData
 
 def unpack(rfile, format):
     result = struct.unpack(format, rfile.read(struct.calcsize(format)))
@@ -18,9 +19,13 @@ class RulesBinaryUnpacker(object):
             assert header == '\x00\x00'
 
             # Chunk 1
-            format = '<H'
+            format = '<2H'
             numEntries = unpack(rfile, format)
-            outData.chunk1 = rfile.read(numEntries)
+            chunk1PointArray = []
+            for i in xrange(numEntries):
+                y, x = rfile.read(numEntries)
+                chunk1PointArray.append(PointData(x, y))
+            outData.chunk1PointArray = chunk1PointArray
 
             # Chunk 2 - character data
             numEntries = unpack(rfile, format)
@@ -54,7 +59,7 @@ class RulesBinaryUnpacker(object):
             # Chunk 3 & 4 - packed strings and associated indexes
             format = '<2H' # this might actually be signed, going by the ScummVM Robin code.
             numEntries, size = unpack(rfile, format)
-            stringIndexes = unpack(rfile, '<' + str(numEntries) + 'H')
+            stringIndexes = unpack(rfile, '<' + str(numEntries) + 'H') # not used, because we cheat below
             stringData = rfile.read(size)
             # Assume all strings are terminated by \x00, and all strings are used.
             outData.strings = stringData.split('\x00')
@@ -91,6 +96,7 @@ class RulesBinaryUnpacker(object):
                     chunk10Indexes.append(totalSize)
                     totalSize += unpack(rfile, 'B')
                 if totalSize:
+                    outData.chunk10Indexes = chunk10Indexes
                     outData.rulesChunk11 = rfile.read(totalSize)
 
             # Chunk 12 - rectangles
@@ -110,34 +116,41 @@ class RulesBinaryUnpacker(object):
             format = '<20h'
             outData.interfaceHotspotsX = unpack(rfile, format)
             outData.interfaceHotspotsY = unpack(rfile, format)
-            keyboardMapping = []
+            format = '20B'
+            outData.keyboardMapping = unpack(rfile, format)
+
             # TODO: Fix these
-            KEYCODE_SPACE = 'KEYCODE_SPACE'
-            KEYCODE_RETURN = 'KEYCODE_RETURN'
-            KEYCODE_INVALID = 'KEYCODE_INVALID'
-            for i in xrange(20):
-                currByte = unpack(rfile, 'B')
-                if currByte == 0x20:
-                    keyboardMapping.append(KEYCODE_SPACE)
-                elif currByte == 0x0D:
-                    keyboardMapping.append(KEYCODE_RETURN)
-                elif currByte == 0xFF: # hack?
-                    keyboardMapping.append(KEYCODE_INVALID)
-                elif currByte == 0x00: # hack?
-                    keyboardMapping.append(KEYCODE_INVALID)
-                else:
-                    assert (currByte > 0x40 and (currByte <= 0x41 + 26))
-                    keyboardMapping.append("TODO")
+#            KEYCODE_SPACE = 'KEYCODE_SPACE'
+#            KEYCODE_RETURN = 'KEYCODE_RETURN'
+#            KEYCODE_INVALID = 'KEYCODE_INVALID'
+#            for i in xrange(20):
+#                currByte = unpack(rfile, 'B')
+#                if currByte == 0x20:
+#                    #keyboardMapping.append(KEYCODE_SPACE)
+#                    keyboardMapping.append(0x20)
+#                elif currByte == 0x0D:
+#                    #keyboardMapping.append(KEYCODE_RETURN)
+#                    keyboardMapping.append(0x0D)
+#                elif currByte == 0xFF: # hack?
+#                    #keyboardMapping.append(KEYCODE_INVALID)
+#                    keyboardMapping.append(0xFF)
+#                elif currByte == 0x00: # hack?
+#                    #keyboardMapping.append(KEYCODE_INVALID)
+#                    keyboardMapping.append(0x00)
+#                else:
+#                    assert (currByte > 0x40 and (currByte <= 0x41 + 26))
+#                    keyboardMapping.append(currByte)
+                    #keyboardMapping.append("TODO")
                     # Constants from ScummVM
 #                    static const Common::KeyCode keybMappingArray[26] = {
 #                        Common::KEYCODE_a, Common::KEYCODE_b, Common::KEYCODE_c, Common::KEYCODE_d, Common::KEYCODE_e,
-#                                                                                                            Common::KEYCODE_f, Common::KEYCODE_g, Common::KEYCODE_h, Common::KEYCODE_i, Common::KEYCODE_j,
-#                                                                                                                                                                                                Common::KEYCODE_k, Common::KEYCODE_l, Common::KEYCODE_m, Common::KEYCODE_n, Common::KEYCODE_o,
-#                                                                                                                                                                                                                                                                                    Common::KEYCODE_p, Common::KEYCODE_q, Common::KEYCODE_r, Common::KEYCODE_s, Common::KEYCODE_t,
-#                                                                                                                                                                                                                                                                                                                                                                        Common::KEYCODE_u, Common::KEYCODE_v, Common::KEYCODE_w, Common::KEYCODE_x, Common::KEYCODE_y,
-#                                                                                                                                                                                                                                                                                                                                                                                                                                                            Common::KEYCODE_z};
+#                        Common::KEYCODE_f, Common::KEYCODE_g, Common::KEYCODE_h, Common::KEYCODE_i, Common::KEYCODE_j,
+#                        Common::KEYCODE_k, Common::KEYCODE_l, Common::KEYCODE_m, Common::KEYCODE_n, Common::KEYCODE_o,
+#                        Common::KEYCODE_p, Common::KEYCODE_q, Common::KEYCODE_r, Common::KEYCODE_s, Common::KEYCODE_t,
+#                        Common::KEYCODE_u, Common::KEYCODE_v, Common::KEYCODE_w, Common::KEYCODE_x, Common::KEYCODE_y,
+#                        Common::KEYCODE_z};
                     #keyboardMapping.append(keyboardMappingArray[currByte - 0x41])
-            outData.keyboardMapping = keyboardMapping
+#            outData.keyboardMapping = keyboardMapping
         return outData
 
 
