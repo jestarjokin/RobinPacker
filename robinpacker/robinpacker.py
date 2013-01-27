@@ -5,7 +5,7 @@ from optparse import OptionParser
 import sys
 
 from unpackers.rules import RulesBinaryUnpacker
-from exporters.rules import RulesXmlExporter
+from exporters.rules import RulesJsonExporter, RulesXmlExporter
 
 def configure_logging():
     logging.basicConfig(format="", level=logging.DEBUG)
@@ -41,9 +41,11 @@ def main(args):
         if options.unpack:
             input_fname = args[0]
             output_fname = args[1]
+            logging.info('Unpacking %s to %s...' % (input_fname, output_fname))
             unpacker = RulesBinaryUnpacker()
             rules = unpacker.unpack(input_fname)
-            exporter = RulesXmlExporter()
+            #exporter = RulesXmlExporter()
+            exporter = RulesJsonExporter()
             exporter.export(rules, output_fname)
         else:
             raise NotImplementedError()
@@ -52,6 +54,7 @@ def main(args):
         logging.exception("Unhandled exception: \n")
         return 2
 
+    logging.info('Done!')
     return 0
 
 if __name__ == "__main__":

@@ -3,13 +3,23 @@
 import struct
 
 from structs.character import CharacterData
+from structs.point import PointData
 from structs.rules import RulesData
 from structs.rect import RectData
-from structs.point import PointData
+from structs.raw import RawData
 
 def unpack(rfile, format):
     result = struct.unpack(format, rfile.read(struct.calcsize(format)))
     return result[0] if len(result) == 1 else result
+
+packedStringLookup = ['I am ', 'You are ', 'you are ', 'hou art ', 'in the ', 'is the ', 'is a ', 'in a ', 'To the ',
+                      'to the ', 'by ', 'going ', 'here ', 'The', 'the', 'and ', 'some ', 'build', 'not ', 'way', 'I ',
+                      'a ', 'an ', 'from ', 'of ', 'him', 'her', 'by ', 'his ', 'ing ', 'tion', 'have ', 'you', "I've ",
+                      "can't ", 'up ', 'to ', 'he ', 'she ', 'down ', 'what', 'What', 'with', 'are ', 'and', 'ent',
+                      'ian', 'ome', 'ed ', 'me', 'my', 'ai', 'it', 'is', 'of', 'oo', 'ea', 'er', 'es', 'th', 'we',
+                      'ou', 'ow', 'or', 'gh', 'go', 'er', 'st', 'ee', 'th', 'sh', 'ch', 'ct', 'on', 'ly', 'ng', 'nd',
+                      'nt', 'ty', 'll', 'le', 'de', 'as', 'ie', 'in', 'ss', "'s ", "'t ", 're', 'gg', 'tt', 'pp',
+                      'nn', 'ay', 'ar', 'wh']
 
 class RulesBinaryUnpacker(object):
     def unpack(self, fname):
@@ -19,15 +29,17 @@ class RulesBinaryUnpacker(object):
             assert header == '\x00\x00'
 
             # Chunk 1
-            format = '<2H'
+            format = '<H'
             numEntries = unpack(rfile, format)
+            format = '<2B'
             chunk1PointArray = []
-            for i in xrange(numEntries):
-                y, x = rfile.read(numEntries)
+            for i in xrange(numEntries / 2):
+                y, x = unpack(rfile, format)
                 chunk1PointArray.append(PointData(x, y))
             outData.chunk1PointArray = chunk1PointArray
 
             # Chunk 2 - character data
+            format = '<H'
             numEntries = unpack(rfile, format)
             assert numEntries <= 40
             characters = []
@@ -54,6 +66,7 @@ class RulesBinaryUnpacker(object):
                 format = '32B'
                 cData.variables = unpack(rfile, format)
                 cData._rulesBuffer2_16 = unpack(rfile, format)
+                characters.append(cData)
             outData.characters = characters
 
             # Chunk 3 & 4 - packed strings and associated indexes
@@ -61,30 +74,41 @@ class RulesBinaryUnpacker(object):
             numEntries, size = unpack(rfile, format)
             stringIndexes = unpack(rfile, '<' + str(numEntries) + 'H') # not used, because we cheat below
             stringData = rfile.read(size)
-            # Assume all strings are terminated by \x00, and all strings are used.
-            outData.strings = stringData.split('\x00')
+            # Assume all strings are terminated by \x00, and all strings are used/listed in the index table.
+            strings = stringData.split('\x00')
+            def unpackString(inChar):
+                global packedStringLookup
+                val = ord(inChar)
+                if val < 0x80:
+                    return inChar
+                return packedStringLookup[0xFF - val]
+            for i, packedString in enumerate(strings):
+                strings[i] = ''.join(map(unpackString, packedString))
+            outData.strings = strings
 
             # Chunk 5 - scripts
             format = '<H'
             numEntries = unpack(rfile, format)
             scripts = rfile.read(numEntries * 2) # each entry is a uint16
-            outData.scripts = scripts
+            outData.scripts = RawData('scripts', scripts)
 
             # Chunk 6 - menu scripts
+            format = '<H'
             numEntries = unpack(rfile, format)
             menuScripts = rfile.read(numEntries * 2) # each entry is a uint16
-            outData.menuScripts = menuScripts
+            outData.menuScripts = RawData('menuScripts', menuScripts)
 
             # Chunk 7 & 8 - game scripts and indexes
+            format = '<H'
             numEntries = unpack(rfile, format)
             gameScriptIndexes = unpack(rfile, '<' + str(numEntries) + 'H')
             size = unpack(rfile, format)
             gameScriptData = rfile.read(size)
             outData.gameScriptIndexes = gameScriptIndexes
-            outData.gameScriptData = gameScriptData
+            outData.gameScriptData = RawData('gameScriptData', gameScriptData)
 
             # Chunk 9
-            outData.rulesChunk9 = rfile.read(60)
+            outData.rulesChunk9 = RawData('rulesChunk9', rfile.read(60))
 
             # Chunk 10 & 11
             numEntries = unpack(rfile, 'B')
@@ -97,7 +121,7 @@ class RulesBinaryUnpacker(object):
                     totalSize += unpack(rfile, 'B')
                 if totalSize:
                     outData.chunk10Indexes = chunk10Indexes
-                    outData.rulesChunk11 = rfile.read(totalSize)
+                    outData.rulesChunk11 = RawData('rulesChunk11', rfile.read(totalSize))
 
             # Chunk 12 - rectangles
             format = '<H'
@@ -112,45 +136,13 @@ class RulesBinaryUnpacker(object):
             outData.rectangles = rectangles
 
             # Chunk 13 - interface hotspots
-            outData.interfaceTwoStepAction = rfile.read(20) # might be a byte array
+            format = '<20B' # I think the first entry is actually numEntries, since it's 19
+            outData.interfaceTwoStepAction = unpack(rfile, format) # might be a byte array
             format = '<20h'
             outData.interfaceHotspotsX = unpack(rfile, format)
             outData.interfaceHotspotsY = unpack(rfile, format)
             format = '20B'
             outData.keyboardMapping = unpack(rfile, format)
-
-            # TODO: Fix these
-#            KEYCODE_SPACE = 'KEYCODE_SPACE'
-#            KEYCODE_RETURN = 'KEYCODE_RETURN'
-#            KEYCODE_INVALID = 'KEYCODE_INVALID'
-#            for i in xrange(20):
-#                currByte = unpack(rfile, 'B')
-#                if currByte == 0x20:
-#                    #keyboardMapping.append(KEYCODE_SPACE)
-#                    keyboardMapping.append(0x20)
-#                elif currByte == 0x0D:
-#                    #keyboardMapping.append(KEYCODE_RETURN)
-#                    keyboardMapping.append(0x0D)
-#                elif currByte == 0xFF: # hack?
-#                    #keyboardMapping.append(KEYCODE_INVALID)
-#                    keyboardMapping.append(0xFF)
-#                elif currByte == 0x00: # hack?
-#                    #keyboardMapping.append(KEYCODE_INVALID)
-#                    keyboardMapping.append(0x00)
-#                else:
-#                    assert (currByte > 0x40 and (currByte <= 0x41 + 26))
-#                    keyboardMapping.append(currByte)
-                    #keyboardMapping.append("TODO")
-                    # Constants from ScummVM
-#                    static const Common::KeyCode keybMappingArray[26] = {
-#                        Common::KEYCODE_a, Common::KEYCODE_b, Common::KEYCODE_c, Common::KEYCODE_d, Common::KEYCODE_e,
-#                        Common::KEYCODE_f, Common::KEYCODE_g, Common::KEYCODE_h, Common::KEYCODE_i, Common::KEYCODE_j,
-#                        Common::KEYCODE_k, Common::KEYCODE_l, Common::KEYCODE_m, Common::KEYCODE_n, Common::KEYCODE_o,
-#                        Common::KEYCODE_p, Common::KEYCODE_q, Common::KEYCODE_r, Common::KEYCODE_s, Common::KEYCODE_t,
-#                        Common::KEYCODE_u, Common::KEYCODE_v, Common::KEYCODE_w, Common::KEYCODE_x, Common::KEYCODE_y,
-#                        Common::KEYCODE_z};
-                    #keyboardMapping.append(keyboardMappingArray[currByte - 0x41])
-#            outData.keyboardMapping = keyboardMapping
         return outData
 
 
