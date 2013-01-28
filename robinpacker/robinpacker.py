@@ -4,8 +4,10 @@ import logging
 from optparse import OptionParser
 import sys
 
-from unpackers.rules import RulesBinaryUnpacker
 from exporters.rules import RulesJsonExporter, RulesXmlExporter
+from importers.rules import RulesJsonImporter
+from unpackers.rules import RulesBinaryUnpacker
+
 
 def configure_logging():
     logging.basicConfig(format="", level=logging.DEBUG)
@@ -45,6 +47,14 @@ def main(args):
             unpacker = RulesBinaryUnpacker()
             rules = unpacker.unpack(input_fname)
             #exporter = RulesXmlExporter()
+            exporter = RulesJsonExporter()
+            exporter.export(rules, output_fname)
+        elif options.pack:
+            input_fname = args[0]
+            output_fname = args[1]
+            logging.info('Packing %s to %s...' % (input_fname, output_fname))
+            importer = RulesJsonImporter()
+            rules = importer.importFile(input_fname)
             exporter = RulesJsonExporter()
             exporter.export(rules, output_fname)
         else:
