@@ -4,8 +4,9 @@ import logging
 from optparse import OptionParser
 import sys
 
-from exporters.rules import RulesJsonExporter, RulesXmlExporter
+from exporters.rules import RulesJsonExporter
 from importers.rules import RulesJsonImporter
+from packers.rules import RulesBinaryPacker
 from unpackers.rules import RulesBinaryUnpacker
 
 
@@ -55,8 +56,10 @@ def main(args):
             logging.info('Packing %s to %s...' % (input_fname, output_fname))
             importer = RulesJsonImporter()
             rules = importer.importFile(input_fname)
-            exporter = RulesJsonExporter()
-            exporter.export(rules, output_fname)
+            #exporter = RulesJsonExporter()
+            #exporter.export(rules, output_fname)
+            packer = RulesBinaryPacker()
+            packer.pack(rules, output_fname)
         else:
             raise NotImplementedError()
     # TODO: add sepcific exception handling if required.

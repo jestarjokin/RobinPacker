@@ -76,6 +76,7 @@ class RulesBinaryUnpacker(object):
             stringData = rfile.read(size)
             # Assume all strings are terminated by \x00, and all strings are used/listed in the index table.
             strings = stringData.split('\x00')
+            del strings[-1]
             def unpackString(inChar):
                 global packedStringLookup
                 val = ord(inChar)
@@ -117,8 +118,9 @@ class RulesBinaryUnpacker(object):
             if numEntries:
                 totalSize = 0
                 for i in xrange(numEntries):
-                    chunk10Indexes.append(totalSize)
-                    totalSize += unpack(rfile, 'B')
+                    val = unpack(rfile, 'B')
+                    chunk10Indexes.append(val)
+                    totalSize += val
                 if totalSize:
                     outData.chunk10Indexes = chunk10Indexes
                     outData.rulesChunk11 = RawData('rulesChunk11', rfile.read(totalSize))
@@ -136,7 +138,7 @@ class RulesBinaryUnpacker(object):
             outData.rectangles = rectangles
 
             # Chunk 13 - interface hotspots
-            format = '<20B' # I think the first entry is actually numEntries, since it's 19
+            format = '20B' # I think the first entry is actually numEntries, since it's 19
             outData.interfaceTwoStepAction = unpack(rfile, format) # might be a byte array
             format = '<20h'
             outData.interfaceHotspotsX = unpack(rfile, format)
