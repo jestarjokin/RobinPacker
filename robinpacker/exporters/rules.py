@@ -4,10 +4,6 @@ from collections import OrderedDict
 import json
 import logging
 import os.path
-try:
-    import xml.etree.cElementTree as etree
-except ImportError:
-    import xml.etree.ElementTree as etree
 
 import structs.rules
 
