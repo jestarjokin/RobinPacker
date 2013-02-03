@@ -9,7 +9,7 @@ from importers.rules import RulesJsonImporter
 from packers.rules import RulesBinaryPacker
 from unpackers.rules import RulesBinaryUnpacker
 
-from exporters.gfx import GfxRawExporter, GfxJsonExporter
+from exporters.gfx import GfxPngExporter, GfxJsonExporter
 from unpackers.gfx import GfxBinaryUnpacker
 
 GfxMetadata = collections.namedtuple('GfxMetadata', 'max_size, has_palette, width, height')
@@ -89,7 +89,7 @@ class FileDispatcher(object):
 
         unpacker = GfxBinaryUnpacker()
         gfx_data = unpacker.unpack(in_fname, image_metadata)
-        exporter = GfxRawExporter()
+        exporter = GfxPngExporter()
         exporter.export(gfx_data, out_fname)
         json_exporter = GfxJsonExporter()
         json_exporter.export(gfx_data, out_fname + '.json')

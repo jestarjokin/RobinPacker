@@ -2,7 +2,12 @@
 
 from collections import OrderedDict
 import json
+import os.path
 
+try:
+    import Image
+except ImportError:
+    Image = None
 
 class GfxJsonExporter(object):
     def export(self, gfx_data, output_file_name):
@@ -22,4 +27,12 @@ class GfxRawExporter(object):
 
 
 class GfxPngExporter(object):
-    pass
+    def export(self, gfx_data, output_file_name):
+        if not Image:
+            raise Exception('The Python Imaging Library (PIL) must be installed to save PNG files.') # TODO: use a custom exception
+        output = Image.new('P', (gfx_data.metadata.width, gfx_data.metadata.height))
+        output.putpalette(gfx_data.palette)
+        output.putdata(gfx_data.data)
+        if os.path.splitext(output_file_name)[1].lower() != '.png':
+            output_file_name += '.png'
+        output.save(output_file_name, 'png')
