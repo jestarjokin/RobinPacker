@@ -1,66 +1,62 @@
 import array
 
-def writeDiscreteRun(output, discrete_values):
-    length = len(discrete_values)
-    slice_start = 0
-    while length:
-        min_length = min(length, 0x7F)
-        output.append(min_length)
-        output.extend(discrete_values[slice_start:slice_start + min_length])
-        length -= min_length
-        slice_start += min_length
 
-def writeRepeatingRun(output, repeating_value, repeating_length):
-    while repeating_length:
-        min_length = min(repeating_length, 0x7F)
-        output.append(min_length | 0x80)
-        output.append(repeating_value)
-        repeating_length -= min_length
+class GfxRleEncoder(object):
+    def __init__(self):
+        self.reset()
 
-def encodeGfx(gfx_data):
-    output = array.array('B')
-    last_val = None
-    repeating_run = False
-    repeating_value = None
-    repeating_length = 0
-    discrete_run = False
-    tmp_values = array.array('B')
-    for val in gfx_data.data:
-        if last_val is None:
-            last_val = val
-            continue
-        if last_val == val:
-            if discrete_run:
-#                if len(tmp_values):
-#                    del tmp_values[-1]
-                writeDiscreteRun(output, tmp_values)
-#                tmp_values = array.array('B')
-            if not repeating_run:
-                repeating_length = 1
-            discrete_run = False
-            repeating_run = True
-            repeating_value = val
-            repeating_length += 1
-        else:
-            if repeating_run:
-                writeRepeatingRun(output, repeating_value, repeating_length)
-                discrete_run = True
-                repeating_run = False
-                repeating_value = None
-                repeating_length = 0
+    def reset(self):
+        self.repeating_length = 0
+        self.repeating_value = None
+        self.discrete_values = array.array('B')
+        self.output = array.array('B')
+
+    def encodeGfx(self, gfx_data):
+        self.reset()
+        for i in xrange(len(gfx_data.data)):
+            val = gfx_data.data[i]
+            next_val = gfx_data.data[i + 1] if i + 1 < len(gfx_data.data) else None
+
+            if next_val != val:
+                if self._isRepeatingRun():
+                    self.repeating_length += 1
+                    self._endRun()
+                else:
+                    self.discrete_values.append(val)
             else:
-                if not discrete_run:
-#                    tmp_values = array.array('B')
-                    tmp_values.append(last_val)
-                discrete_run = True
-                tmp_values.append(val)
+                if not self._isRepeatingRun():
+                    self._endRun()
+                    self.repeating_value = val
+                self.repeating_length += 1
+        self._endRun()
+        self.output.append(0xFF)
+        return self.output
 
-        last_val = val
+    def _isRepeatingRun(self):
+        return self.repeating_length > 0
 
-    if repeating_run:
-        writeRepeatingRun(output, repeating_value, repeating_length)
-    elif discrete_run:
-        writeDiscreteRun(output, tmp_values)
+    def _endRun(self):
+        if self._isRepeatingRun():
+            self._writeRepeatingRun()
+            self.repeating_value = None
+            self.repeating_length = 0
+        else:
+            self._writeDiscreteRun()
+            self.discrete_values = array.array('B')
 
-    output.append(0xFF)
-    return output
+    def _writeRepeatingRun(self):
+        while self.repeating_length:
+            min_length = min(self.repeating_length, 0x7F)
+            self.output.append(min_length | 0x80)
+            self.output.append(self.repeating_value)
+            self.repeating_length -= min_length
+
+    def _writeDiscreteRun(self):
+        length = len(self.discrete_values)
+        slice_start = 0
+        while length:
+            min_length = min(length, 0x7F)
+            self.output.append(min_length)
+            self.output.extend(self.discrete_values[slice_start:slice_start + min_length])
+            length -= min_length
+            slice_start += min_length
