@@ -19,8 +19,9 @@ class GfxRleEncoder(object):
 
             if next_val != val:
                 if self._isRepeatingRun():
-                    self.repeating_length += 1
-                    self._endRun()
+                    if (next_val is not None) or self.repeating_value != 0:
+                        self.repeating_length += 1
+                        self._endRun()
                 else:
                     self.discrete_values.append(val)
             else:
@@ -28,12 +29,24 @@ class GfxRleEncoder(object):
                     self._endRun()
                     self.repeating_value = val
                 self.repeating_length += 1
-        self._endRun()
+        if len(self.discrete_values):
+            if self.discrete_values[-1] == 0:
+                del self.discrete_values[-1]
+            self._endRun()
         self.output.append(0xFF)
         return self.output
 
     def _isRepeatingRun(self):
         return self.repeating_length > 0
+
+    def _lastValuesAreZero(self):
+        if self.repeating_length > 0:
+            print self.repeating_length
+            print self.repeating_value
+            return self.repeating_value == 0
+        else:
+            print "discrete"
+            return len(self.discrete_values) and self.discrete_values[-1] == 0
 
     def _endRun(self):
         if self._isRepeatingRun():
