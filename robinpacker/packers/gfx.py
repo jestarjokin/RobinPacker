@@ -1,5 +1,8 @@
 import array
+import struct
 
+def paletteRGB2VGA(val):
+    return val >> 2 # VGA palette only uses the lower six bits (64 possible colours)
 
 class GfxRleEncoder(object):
     def __init__(self):
@@ -34,19 +37,11 @@ class GfxRleEncoder(object):
                 del self.discrete_values[-1]
             self._endRun()
         self.output.append(0xFF)
+        self.output.append(0xFF)
         return self.output
 
     def _isRepeatingRun(self):
         return self.repeating_length > 0
-
-    def _lastValuesAreZero(self):
-        if self.repeating_length > 0:
-            print self.repeating_length
-            print self.repeating_value
-            return self.repeating_value == 0
-        else:
-            print "discrete"
-            return len(self.discrete_values) and self.discrete_values[-1] == 0
 
     def _endRun(self):
         if self._isRepeatingRun():
@@ -59,7 +54,7 @@ class GfxRleEncoder(object):
 
     def _writeRepeatingRun(self):
         while self.repeating_length:
-            min_length = min(self.repeating_length, 0x7F)
+            min_length = min(self.repeating_length, 0x7E)
             self.output.append(min_length | 0x80)
             self.output.append(self.repeating_value)
             self.repeating_length -= min_length
@@ -73,3 +68,16 @@ class GfxRleEncoder(object):
             self.output.extend(self.discrete_values[slice_start:slice_start + min_length])
             length -= min_length
             slice_start += min_length
+
+
+class GfxBinaryPacker(object):
+    def pack(self, gfx_data, output_file_name):
+        with file(output_file_name, 'wb') as output_file:
+            if gfx_data.metadata.has_palette:
+                assert len(gfx_data.palette) == 768
+                for i in xrange(len(gfx_data.palette)):
+                    val = paletteRGB2VGA(gfx_data.palette[i])
+                    output_file.write(struct.pack('B', val))
+            rle_encoder = GfxRleEncoder()
+            packed_data = rle_encoder.encodeGfx(gfx_data)
+            packed_data.tofile(output_file)

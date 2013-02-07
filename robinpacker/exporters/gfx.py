@@ -9,11 +9,19 @@ try:
 except ImportError:
     Image = None
 
+
 class GfxJsonExporter(object):
     def export(self, gfx_data, output_file_name):
         output = OrderedDict()
-        output['originalFileName'] = gfx_data.originalFileName
-        output['metadata'] = gfx_data.metadata
+        output['__type__'] = 'GfxData'
+        output['original_file_name'] = gfx_data.original_file_name
+        metadata = OrderedDict()
+        metadata['__type__'] = 'GfxMetadata'
+        metadata['max_size'] = gfx_data.metadata.max_size
+        metadata['has_palette'] = gfx_data.metadata.has_palette
+        metadata['width'] = gfx_data.metadata.width
+        metadata['height'] = gfx_data.metadata.height
+        output['metadata'] = metadata
         with file(output_file_name, 'w') as json_file:
             json.dump(output, json_file, indent=1)
 

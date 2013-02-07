@@ -56,6 +56,5 @@ class GfxBinaryUnpacker(object):
                 output.palette = DEFAULT_PALETTE
             output.data = decodeGfx(input_file, metadata.max_size)
         output.metadata = metadata
-        output.originalFileName = os.path.basename(fname)
+        output.original_file_name = os.path.basename(fname)
         return output
-

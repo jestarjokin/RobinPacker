@@ -7,12 +7,13 @@ import os.path
 from exporters.rules import RulesJsonExporter
 from importers.rules import RulesJsonImporter
 from packers.rules import RulesBinaryPacker
+from importers.gfx import GfxPngImporter, GfxJsonImporter
+from packers.gfx import GfxBinaryPacker
 from unpackers.rules import RulesBinaryUnpacker
 
 from exporters.gfx import GfxPngExporter, GfxJsonExporter
 from unpackers.gfx import GfxBinaryUnpacker
-
-GfxMetadata = collections.namedtuple('GfxMetadata', 'max_size, has_palette, width, height')
+from structs.gfx import GfxMetadata
 
 DEFAULT_GFX_METADATA = GfxMetadata(0xFA00, True, 320, 200)
 GFX_METADATA_LOOKUP = {
@@ -49,9 +50,9 @@ class FileDispatcher(object):
         if os.path.isdir(input_fname):
             return self.process_directory(input_fname, output_fname,options)
         ext = os.path.splitext(input_fname)[1].lower()
-        if ext == '.prg':
+        if ext in ('.prg', '.json'):
             self.process_prg(input_fname, output_fname, options)
-        elif ext in ('.gfx', '.vga'):
+        elif ext in ('.gfx', '.vga', '.png', '.raw'):
             self.process_gfx(input_fname, output_fname, options)
 #        elif ext == '.vga':
 #            self.process_vga(input_fname, output_fname, options)
@@ -80,19 +81,29 @@ class FileDispatcher(object):
             raise NotImplementedError()
 
     def process_gfx(self, in_fname, out_fname, options):
-        logging.info('Unpacking %s to %s...' % (in_fname, out_fname))
-        try:
-            image_metadata = GFX_METADATA_LOOKUP[os.path.basename(in_fname).upper()]
-        except KeyError:
-            logging.error('Unrecognised input image; using default metadata.')
-            image_metadata = DEFAULT_GFX_METADATA
+        if options.unpack:
+            logging.info('Unpacking %s to %s...' % (in_fname, out_fname))
+            try:
+                image_metadata = GFX_METADATA_LOOKUP[os.path.basename(in_fname).upper()]
+            except KeyError:
+                logging.error('Unrecognised input image; using default metadata.')
+                image_metadata = DEFAULT_GFX_METADATA
 
-        unpacker = GfxBinaryUnpacker()
-        gfx_data = unpacker.unpack(in_fname, image_metadata)
-        exporter = GfxPngExporter()
-        exporter.export(gfx_data, out_fname)
-        json_exporter = GfxJsonExporter()
-        json_exporter.export(gfx_data, out_fname + '.json')
+            unpacker = GfxBinaryUnpacker()
+            gfx_data = unpacker.unpack(in_fname, image_metadata)
+            exporter = GfxPngExporter()
+            exporter.export(gfx_data, out_fname)
+            json_exporter = GfxJsonExporter()
+            json_exporter.export(gfx_data, out_fname + '.json')
+        else:
+            logging.info('Packing %s to %s...' % (in_fname, out_fname))
+            json_importer = GfxJsonImporter()
+            gfx_data = json_importer.importFile(in_fname + '.json')
+            importer = GfxPngImporter()
+            gfx_data = importer.importFile(in_fname, gfx_data)
+            packer = GfxBinaryPacker()
+            packer.pack(gfx_data, out_fname)
+
 
     def process_directory(self, in_fname, out_fname, options):
         for x, y, z in os.path.walk(in_fname):
