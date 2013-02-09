@@ -77,16 +77,13 @@ def getArgumentString(argType, script):
 
 class ScriptDisassembler(object):
     """Adapted/translated from ScummVM."""
-    def __init__(self):
-        pass
+    SCUMMVM_COMPATIBLE, RULES = range(2)
 
-    def disassemble(self, script_byte_string):
-        """
-        script should be a string of bytes.
-        """
+    def __init__(self, output_mode=RULES):
+        self.output_mode = output_mode
+
+    def disassemble_scummvm_compatible(self, script):
         eof = False
-        script = StringIO.StringIO(script_byte_string)
-
         while not eof:
             val = unpack(script, '<H')
             if val == 0xFFF6: # end of script
@@ -115,16 +112,8 @@ class ScriptDisassembler(object):
                     out_str = "    and "
                 if neg:
                     out_str += "not "
-                out_str += opCode.opName
-                out_str += "("
 
-                # TODO: Can simplify this/make it more Pythonic.
-                for i in xrange(2, 2 + opCode.numArgs):
-                    opArgType = opCode[i]
-                    out_str += getArgumentString(opArgType, script)
-                    if i != 2 + opCode.numArgs - 1:
-                        out_str += ", "
-                out_str += ")"
+                out_str += self._generate_method_call(opCode, script)
 
                 val = unpack(script, '<H')
                 if val == 0xFFF8:
@@ -139,17 +128,86 @@ class ScriptDisassembler(object):
                 assert val < len(opCodes2)
                 opCode = opCodes2[val]
                 out_str = "    "
-                out_str += opCode.opName
-                out_str += "("
-                for i in xrange(2, 2 + opCode.numArgs):
-                    opArgType = opCode[min(i, 2 + 4)] # only 5 arg types allowed
-                    out_str += getArgumentString(opArgType, script)
-                    if i != 2 + opCode.numArgs - 1:
-                        out_str += ", "
-                out_str += ");"
+                out_str += self._generate_method_call(opCode, script)
+                out_str += ";"
                 print "{0}".format(out_str)
                 val = unpack(script, '<H')
 
             print "} "
             print " "
         script.close()
+
+    def _generate_method_call(self, opCode, script):
+        out_str = opCode.opName
+        out_str += "("
+        for i in xrange(2, 2 + opCode.numArgs):
+            opArgType = opCode[min(i, 2 + 4)] # only 5 arg types allowed
+            out_str += getArgumentString(opArgType, script)
+            if i != 2 + opCode.numArgs - 1:
+                out_str += ", "
+        out_str += ")"
+        return out_str
+
+    def disassemble_rules(self, script):
+        eof = False
+        rule_counter = 0
+        while not eof:
+            val = unpack(script, '<H')
+            if val == 0xFFF6: # end of script
+                return
+
+            rule_counter += 1
+            print "rule \"rule-{0:02d}\"".format(rule_counter)
+            has_conditions = val != 0xFFF8
+            if has_conditions:
+                print "  when"
+
+            # check the conditions.
+            while val != 0xFFF8:
+                out_str = "    "
+                is_negative_condition = val >= 1000
+                if is_negative_condition:
+                    val -= 1000
+                    out_str += "not "
+
+                # op code type 1
+                assert val < len(opCodes1)
+                opCode = opCodes1[val]
+
+                out_str += self._generate_method_call(opCode, script)
+
+                val = unpack(script, '<H')
+                if val != 0xFFF8:
+                    out_str += " and"
+
+                print "{0}".format(out_str)
+
+            if has_conditions:
+                print "  then"
+            else:
+                print "  always"
+            val = unpack(script, '<H')
+            while val != 0xFFF7:
+                # op code type 2
+                assert val < len(opCodes2)
+                opCode = opCodes2[val]
+                out_str = "    "
+                out_str += self._generate_method_call(opCode, script)
+
+                print "{0}".format(out_str)
+                val = unpack(script, '<H')
+
+            print "end"
+            print " "
+        script.close()
+
+    def disassemble(self, script_byte_string):
+        """
+        script should be a string of bytes.
+        """
+        script = StringIO.StringIO(script_byte_string)
+        if self.output_mode == self.SCUMMVM_COMPATIBLE:
+            return self.disassemble_scummvm_compatible(script)
+        else:
+            return self.disassemble_rules(script)
+
