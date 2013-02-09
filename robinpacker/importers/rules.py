@@ -21,7 +21,7 @@ class RulesJsonImporter(object):
                 rules.gameScriptIndexes = dct['gameScriptIndexes']
                 rules.gameScriptData = dct['gameScriptData']
                 rules.rulesChunk9 = dct['rulesChunk9']
-                rules.chunk10Indexes = dct['chunk10Indexes']
+                #rules.chunk10Indexes = dct['chunk10Indexes']
                 rules.rulesChunk11 = dct['rulesChunk11']
                 rules.rectangles = dct['rectangles']
                 rules.interfaceTwoStepAction = dct['hotspots']['interfaceTwoStepAction']

@@ -47,12 +47,13 @@ class GfxRawImporter(object):
 
 class GfxPngImporter(object):
     def importFile(self, input_file_name, gfx_data=None):
-        if not Image:
+        if Image is None:
             raise Exception('The Python Imaging Library (PIL) must be installed to load PNG files.') # TODO: use a custom exception
-
+        png_data = Image.open(input_file_name)
+        if gfx_data.palette is None:
+            raise Exception('Input images must have a 256-colour palette. 16/24/32-bit images are not supported.')
         if gfx_data is None:
             gfx_data = structs.gfx.GfxData()
-        png_data = Image.open(input_file_name)
         gfx_data.palette = array.array('B', png_data.palette.palette)
         gfx_data.data = array.array('B', png_data.getdata())
 

@@ -114,16 +114,20 @@ class RulesBinaryUnpacker(object):
             # Chunk 10 & 11
             numEntries = unpack(rfile, 'B')
             assert numEntries <= 20
-            chunk10Indexes = []
+            chunk10Sizes = []
             if numEntries:
                 totalSize = 0
                 for i in xrange(numEntries):
                     val = unpack(rfile, 'B')
-                    chunk10Indexes.append(val)
+                    chunk10Sizes.append(val)
                     totalSize += val
                 if totalSize:
-                    outData.chunk10Indexes = chunk10Indexes
-                    outData.rulesChunk11 = RawData('rulesChunk11', rfile.read(totalSize))
+                    #outData.chunk10Indexes = chunk10Indexes
+                    rulesChunk11 = []
+                    for i, size in enumerate(chunk10Sizes):
+                        data = RawData('rulesChunk11_' + str(i), rfile.read(size))
+                        rulesChunk11.append(data)
+                    outData.rulesChunk11 = rulesChunk11
 
             # Chunk 12 - rectangles
             format = '<H'

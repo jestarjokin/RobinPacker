@@ -23,7 +23,7 @@ class RulesJsonExporter(object):
                     result['gameScriptIndexes'] = obj.gameScriptIndexes
                     result['gameScriptData'] = obj.gameScriptData
                     result['rulesChunk9'] = obj.rulesChunk9
-                    result['chunk10Indexes'] = obj.chunk10Indexes
+                    #result['chunk10Indexes'] = obj.chunk10Indexes
                     result['rulesChunk11'] = obj.rulesChunk11
                     result['rectangles'] = obj.rectangles
                     result['hotspots'] = OrderedDict()

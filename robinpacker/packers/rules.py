@@ -114,12 +114,15 @@ class RulesBinaryPacker(object):
 
             # Chunk 10 & 11
             format = 'B'
-            numEntries = len(rules.chunk10Indexes)
+            numEntries = len(rules.rulesChunk11)
             assert numEntries <= 20
             pack(rfile, numEntries, format)
-            format = str(numEntries) + 'B'
-            pack(rfile, rules.chunk10Indexes, format)
-            rfile.write(rules.rulesChunk11.data)
+            for chunk in rules.rulesChunk11:
+                size = len(chunk.data)
+                assert size <= 0xFF
+                pack(rfile, size, format)
+            for chunk in rules.rulesChunk11:
+                rfile.write(chunk.data)
 
             # Chunk 12 - rectangles
             format = '<H'
