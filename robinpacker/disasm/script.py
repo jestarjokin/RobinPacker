@@ -1,0 +1,155 @@
+#! /usr/bin/python
+import collections
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
+import struct
+
+from opcodes import *
+
+def unpack(rfile, format):
+    result = struct.unpack(format, rfile.read(struct.calcsize(format)))
+    return result[0] if len(result) == 1 else result
+
+def getArgumentString(argType, script):
+    out_str = ""
+    if argType == kImmediateValue:
+        out_str = "0x{0:02X}".format(unpack(script, '<H'))
+    elif argType == kGetValue1:
+        val = unpack(script, '<H')
+        if val < 1000:
+            out_str = "0x{0:02X}".format(val)
+        elif val > 1004:
+            out_str = "getValue1(0x{0:02X})".format(val)
+        elif val == 1000:
+            out_str = "_selectedCharacterId"
+        elif val == 1001:
+            out_str = "characterIndex"
+        elif val == 1002:
+            out_str = "_word16F00_characterId"
+        elif val == 1003:
+            out_str = "_currentCharacterVariables[6]"
+        elif val == 1004:
+            out_str = "_word10804"
+    elif argType == kgetPosFromScript:
+        curWord = unpack(script, '<H')
+        tmpVal = curWord >> 8
+        # switch statement
+        if tmpVal == 0xFF:
+            out_str = "(_rulesBuffer2_13[currentCharacter],_rulesBuffer2_14[currentCharacter])"
+        elif tmpVal == 0xFE:
+            index = curWord & 0xFF
+            assert 0 <= index < 40
+            out_str = "_vm->_rulesBuffer2_13[{0}],_vm->_rulesBuffer2_14[{0}]".format(index)
+        elif tmpVal == 0xFD:
+            out_str = "_currentScriptCharacterPosition"
+        elif tmpVal == 0xFC:
+            index = curWord & 0xFF
+            assert index < 40
+            out_str = "(characterPositionTileX[{0}], characterPositionTileY[{0}])".format(index)
+        elif tmpVal == 0xFB:
+            out_str = "(characterPositionTileX[_word16F00_characterId], characterPositionTileY[_word16F00_characterId])"
+        elif tmpVal == 0xFA:
+            out_str = "(_array10999PosX[currentCharacter], _array109C1PosY[currentCharacter])"
+        elif tmpVal == 0xF9:
+            out_str = "(_currentCharacterVariables[4], _currentCharacterVariables[5])"
+        elif tmpVal == 0xF8:
+            index = curWord & 0xFF
+            assert 0 <= index < 40
+            out_str = "_vm->_rulesBuffer12Pos3[{0}]".format(index)
+        elif tmpVal == 0xF7:
+            out_str = "(_characterPositionTileX[_currentCharacterVariables[6]], _characterPositionTileY[_currentCharacterVariables[6]])"
+        elif tmpVal == 0xF6:
+            out_str = "_savedMousePosDivided"
+        else:
+            out_str = "(0x{0:02X},0x{0:02X})".format(curWord >> 8, curWord & 0xFF)
+    elif argType == kCompareOperation:
+        comp = unpack(script, '<H')
+        if comp != ord('<') and comp != ord('>'):
+            comp = ord('=')
+        out_str = "{0:c}".format(comp)
+    elif argType == kComputeOperation:
+        comp = unpack(script, '<H')
+        out_str = "{0:c}".format(comp)
+    return out_str
+
+
+class ScriptDisassembler(object):
+    """Adapted/translated from ScummVM."""
+    def __init__(self):
+        pass
+
+    def disassemble(self, script_byte_string):
+        """
+        script should be a string of bytes.
+        """
+        eof = False
+        script = StringIO.StringIO(script_byte_string)
+
+        while not eof:
+            val = unpack(script, '<H')
+            if val == 0xFFF6: # end of script
+                return
+            hasIf = False
+            if val != 0xFFF8:
+                hasIf = True
+            firstIf = True
+
+            # check the conditions.
+            while val != 0xFFF8:
+                neg = False
+                if val >= 1000:
+                    val -= 1000
+                    # negative condition
+                    neg = True
+
+                # op code type 1
+                assert val < len(opCodes1)
+                opCode = opCodes1[val]
+
+                if firstIf:
+                    out_str = "if ("
+                    firstIf = False
+                else:
+                    out_str = "    and "
+                if neg:
+                    out_str += "not "
+                out_str += opCode.opName
+                out_str += "("
+
+                # TODO: Can simplify this/make it more Pythonic.
+                for i in xrange(2, 2 + opCode.numArgs):
+                    opArgType = opCode[i]
+                    out_str += getArgumentString(opArgType, script)
+                    if i != 2 + opCode.numArgs - 1:
+                        out_str += ", "
+                out_str += ")"
+
+                val = unpack(script, '<H')
+                if val == 0xFFF8:
+                    out_str += ")"
+
+                print "{0}".format(out_str)
+
+            print "{ "
+            val = unpack(script, '<H')
+            while val != 0xFFF7:
+                # op code type 2
+                assert val < len(opCodes2)
+                opCode = opCodes2[val]
+                out_str = "    "
+                out_str += opCode.opName
+                out_str += "("
+                for i in xrange(2, 2 + opCode.numArgs):
+                    opArgType = opCode[min(i, 2 + 4)] # only 5 arg types allowed
+                    out_str += getArgumentString(opArgType, script)
+                    if i != 2 + opCode.numArgs - 1:
+                        out_str += ", "
+                out_str += ");"
+                print "{0}".format(out_str)
+                val = unpack(script, '<H')
+
+            print "} "
+            print " "
+        script.close()

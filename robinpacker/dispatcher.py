@@ -48,7 +48,7 @@ class FileDispatcher(object):
         input_fname = args[0]
         output_fname = args[1]
         if os.path.isdir(input_fname):
-            return self.process_directory(input_fname, output_fname,options)
+            self.process_directory(input_fname, output_fname, options)
         ext = os.path.splitext(input_fname)[1].lower()
         if ext in ('.prg', '.json'):
             self.process_prg(input_fname, output_fname, options)

@@ -1,3 +1,4 @@
+#! /usr/bin/python
 import array
 import unittest
 
