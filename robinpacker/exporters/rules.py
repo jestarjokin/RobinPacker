@@ -5,11 +5,13 @@ import json
 import logging
 import os.path
 
+from script import ScriptExporter
 import structs.rules
 
 
 class RulesJsonExporter(object):
     def export(self, rules, json_file_name):
+        script_exporter = ScriptExporter()
         class RulesJsonEncoder(json.JSONEncoder):
             def default(self, obj):
                 if isinstance(obj, structs.rules.RulesData):
@@ -20,8 +22,8 @@ class RulesJsonExporter(object):
                     result['strings'] =  obj.strings
                     result['scripts'] = obj.scripts
                     result['menuScripts'] = obj.menuScripts
-                    result['gameScriptIndexes'] = obj.gameScriptIndexes
-                    result['gameScriptData'] = obj.gameScriptData
+                    #result['gameScriptIndexes'] = obj.gameScriptIndexes
+                    result['gameScripts'] = obj.gameScripts
                     result['rulesChunk9'] = obj.rulesChunk9
                     #result['chunk10Indexes'] = obj.chunk10Indexes
                     result['rulesChunk11'] = obj.rulesChunk11
@@ -72,12 +74,22 @@ class RulesJsonExporter(object):
                     return result
                 elif isinstance(obj, structs.raw.RawData):
                     raw_fname = os.path.splitext(json_file_name)[0]  + '_' + obj.id + '.dmp'
-                    logging.debug('Dumping raw data to %s' % (raw_fname, ))
+                    logging.debug('Dumping raw data to {}'.format(raw_fname))
                     with file(raw_fname, 'wb') as raw_file:
                         raw_file.write(obj.data)
                     relative_fname = os.path.basename(raw_fname)
                     result = OrderedDict()
                     result['__type__'] = 'RawData'
+                    result['id'] = obj.id
+                    result['path'] = relative_fname
+                    return result
+                elif isinstance(obj, structs.script.ScriptData):
+                    script_fname = os.path.splitext(json_file_name)[0]  + '_' + obj.id + '.rrs'
+                    logging.debug('Disassembling script data to {}'.format(script_fname))
+                    script_exporter.export(obj, script_fname)
+                    relative_fname = os.path.basename(script_fname)
+                    result = OrderedDict()
+                    result['__type__'] = 'ScriptData'
                     result['id'] = obj.id
                     result['path'] = relative_fname
                     return result

@@ -7,8 +7,8 @@ class RulesData(object):
         self.strings = None
         self.scripts = None
         self.menuScripts = None
-        self.gameScriptIndexes = None
-        self.gameScriptData = None
+        #self.gameScriptIndexes = None
+        self.gameScripts = None
         self.rulesChunk9 = None
         self.chunk10Indexes = None
         self.rulesChunk11 = None

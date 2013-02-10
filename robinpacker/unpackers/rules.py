@@ -7,6 +7,7 @@ from structs.point import PointData
 from structs.rules import RulesData
 from structs.rect import RectData
 from structs.raw import RawData
+from structs.script import ScriptData
 
 def unpack(rfile, format):
     result = struct.unpack(format, rfile.read(struct.calcsize(format)))
@@ -91,22 +92,26 @@ class RulesBinaryUnpacker(object):
             format = '<H'
             numEntries = unpack(rfile, format)
             scripts = rfile.read(numEntries * 2) # each entry is a uint16
-            outData.scripts = RawData('scripts', scripts)
+            outData.scripts = ScriptData('scripts', scripts)
 
             # Chunk 6 - menu scripts
             format = '<H'
             numEntries = unpack(rfile, format)
             menuScripts = rfile.read(numEntries * 2) # each entry is a uint16
-            outData.menuScripts = RawData('menuScripts', menuScripts)
+            outData.menuScripts = ScriptData('menuScripts', menuScripts)
 
             # Chunk 7 & 8 - game scripts and indexes
             format = '<H'
             numEntries = unpack(rfile, format)
             gameScriptIndexes = unpack(rfile, '<' + str(numEntries) + 'H')
             size = unpack(rfile, format)
-            gameScriptData = rfile.read(size)
-            outData.gameScriptIndexes = gameScriptIndexes
-            outData.gameScriptData = RawData('gameScriptData', gameScriptData)
+            # Here's an unnecessarily clever way to calculate the sizes of each script block.
+            script_sizes = map(lambda x, y: (y if y is not None else size) - x, gameScriptIndexes, gameScriptIndexes[1:])
+            gameScripts = []
+            for i, script_size in enumerate(script_sizes):
+                script_data = ScriptData('gameScript_{}'.format(i + 1), rfile.read(script_size))
+                gameScripts.append(script_data)
+            outData.gameScripts = gameScripts
 
             # Chunk 9
             outData.rulesChunk9 = RawData('rulesChunk9', rfile.read(60))
@@ -125,7 +130,7 @@ class RulesBinaryUnpacker(object):
                     #outData.chunk10Indexes = chunk10Indexes
                     rulesChunk11 = []
                     for i, size in enumerate(chunk10Sizes):
-                        data = RawData('rulesChunk11_' + str(i), rfile.read(size))
+                        data = RawData('rulesChunk11_{}'.format(i + 1), rfile.read(size))
                         rulesChunk11.append(data)
                     outData.rulesChunk11 = rulesChunk11
 

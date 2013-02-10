@@ -99,14 +99,15 @@ class RulesBinaryPacker(object):
 
             # Chunk 7 & 8 - game scripts and indexes
             format = '<H'
-            numEntries = len(rules.gameScriptIndexes)
+            numEntries = len(rules.gameScripts)
             pack(rfile, numEntries, format)
-            format = '<' + str(numEntries) + 'H'
-            pack(rfile, rules.gameScriptIndexes, format)
-            format = '<H'
-            size = len(rules.gameScriptData.data)
-            pack(rfile, size, format)
-            rfile.write(rules.gameScriptData.data)
+            totalSize = 0
+            for script_data in rules.gameScripts:
+                pack(rfile, totalSize, format)
+                totalSize += len(script_data.data)
+            pack(rfile, totalSize, format)
+            for script_data in rules.gameScripts:
+                rfile.write(script_data.data)
 
             # Chunk 9
             assert(len(rules.rulesChunk9.data) == 60)

@@ -18,8 +18,8 @@ class RulesJsonImporter(object):
                 rules.strings = dct['strings']
                 rules.scripts = dct['scripts']
                 rules.menuScripts = dct['menuScripts']
-                rules.gameScriptIndexes = dct['gameScriptIndexes']
-                rules.gameScriptData = dct['gameScriptData']
+                #rules.gameScriptIndexes = dct['gameScriptIndexes']
+                rules.gameScripts = dct['gameScripts']
                 rules.rulesChunk9 = dct['rulesChunk9']
                 #rules.chunk10Indexes = dct['chunk10Indexes']
                 rules.rulesChunk11 = dct['rulesChunk11']
@@ -72,6 +72,14 @@ class RulesJsonImporter(object):
                 with file(raw_fname, 'rb') as raw_file:
                     data = raw_file.read()
                 return structs.raw.RawData(id, data)
+            elif type_val == 'ScriptData':
+                id = dct['id']
+                base_name = dct['path']
+                path_name = os.path.split(json_file_name)[0]
+                raw_fname = os.path.join(path_name, base_name)
+                with file(raw_fname, 'rb') as raw_file:
+                    data = raw_file.read()
+                return structs.script.ScriptData(id, data)
         with file(json_file_name, 'r') as json_file:
             rules = json.load(json_file, object_hook=decode_objects)
         return rules
