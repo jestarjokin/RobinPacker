@@ -2,7 +2,14 @@
 
 import json
 import os.path
-import structs.rules
+#import robinpacker.structs
+
+from robinpacker.structs.character import CharacterData
+from robinpacker.structs.point import PointData
+from robinpacker.structs.rules import RulesData
+from robinpacker.structs.rect import RectData
+from robinpacker.structs.raw import RawData
+from robinpacker.structs.script import ScriptData
 
 class RulesJsonImporter(object):
     def importFile(self, json_file_name):
@@ -12,7 +19,7 @@ class RulesJsonImporter(object):
             except KeyError:
                 return dct
             if type_val == 'RulesData':
-                rules = structs.rules.RulesData()
+                rules = RulesData()
                 rules.chunk1PointArray = dct['chunk1PointArray']
                 rules.characters = dct['characters']
                 rules.strings = dct['strings']
@@ -30,12 +37,12 @@ class RulesJsonImporter(object):
                 rules.keyboardMapping = dct['hotspots']['keyboardMapping']
                 return rules
             elif type_val == 'PointData':
-                point = structs.point.PointData()
+                point = PointData()
                 point.x = dct['x']
                 point.y = dct['y']
                 return point
             elif type_val == 'CharacterData':
-                character = structs.character.CharacterData()
+                character = CharacterData()
                 character.posX = dct['posX']
                 character.posY = dct['posY']
                 character.posAltitude = dct['posAltitude']
@@ -54,7 +61,7 @@ class RulesJsonImporter(object):
                 character._rulesBuffer2_16 = dct['_rulesBuffer2_16']
                 return character
             elif type_val == 'RectData':
-                rect = structs.rect.RectData()
+                rect = RectData()
                 rect.maxX = dct['maxX']
                 rect.minX = dct['minX']
                 rect.maxY = dct['maxY']
@@ -71,7 +78,7 @@ class RulesJsonImporter(object):
                 raw_fname = os.path.join(path_name, base_name)
                 with file(raw_fname, 'rb') as raw_file:
                     data = raw_file.read()
-                return structs.raw.RawData(id, data)
+                return RawData(id, data)
             elif type_val == 'ScriptData':
                 id = dct['id']
                 base_name = dct['path']
@@ -79,7 +86,7 @@ class RulesJsonImporter(object):
                 raw_fname = os.path.join(path_name, base_name)
                 with file(raw_fname, 'rb') as raw_file:
                     data = raw_file.read()
-                return structs.script.ScriptData(id, data)
+                return ScriptData(id, data)
         with file(json_file_name, 'r') as json_file:
             rules = json.load(json_file, object_hook=decode_objects)
         return rules

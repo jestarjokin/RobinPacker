@@ -2,12 +2,12 @@
 
 import struct
 
-from structs.character import CharacterData
-from structs.point import PointData
-from structs.rules import RulesData
-from structs.rect import RectData
-from structs.raw import RawData
-from structs.script import ScriptData
+from robinpacker.structs.character import CharacterData
+from robinpacker.structs.point import PointData
+from robinpacker.structs.rules import RulesData
+from robinpacker.structs.rect import RectData
+from robinpacker.structs.raw import RawData
+from robinpacker.structs.script import ScriptData
 
 def unpack(rfile, format):
     result = struct.unpack(format, rfile.read(struct.calcsize(format)))

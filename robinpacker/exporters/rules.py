@@ -6,7 +6,7 @@ import logging
 import os.path
 
 from script import ScriptExporter
-import structs.rules
+import robinpacker.structs.rules
 
 
 class RulesJsonExporter(object):
@@ -14,7 +14,7 @@ class RulesJsonExporter(object):
         script_exporter = ScriptExporter()
         class RulesJsonEncoder(json.JSONEncoder):
             def default(self, obj):
-                if isinstance(obj, structs.rules.RulesData):
+                if isinstance(obj, robinpacker.structs.rules.RulesData):
                     result = OrderedDict()
                     result['__type__'] = 'RulesData'
                     result['chunk1PointArray'] = obj.chunk1PointArray
@@ -34,13 +34,13 @@ class RulesJsonExporter(object):
                     result['hotspots']['interfaceHotspotsY'] = obj.interfaceHotspotsY
                     result['hotspots']['keyboardMapping'] = obj.keyboardMapping
                     return result
-                elif isinstance(obj, structs.point.PointData):
+                elif isinstance(obj, robinpacker.structs.point.PointData):
                     result = OrderedDict()
                     result['__type__'] = 'PointData'
                     result['x'] = obj.x
                     result['y'] = obj.y
                     return result
-                elif isinstance(obj, structs.character.CharacterData):
+                elif isinstance(obj, robinpacker.structs.character.CharacterData):
                     result = OrderedDict()
                     result['__type__'] = 'CharacterData'
                     result['posX'] = obj.posX
@@ -60,7 +60,7 @@ class RulesJsonExporter(object):
                     result['variables'] = obj.variables
                     result['_rulesBuffer2_16'] = obj._rulesBuffer2_16
                     return result
-                elif isinstance(obj, structs.rect.RectData):
+                elif isinstance(obj, robinpacker.structs.rect.RectData):
                     result = OrderedDict()
                     result['__type__'] = 'RectData'
                     result['maxX'] = obj.maxX
@@ -72,7 +72,7 @@ class RulesJsonExporter(object):
                     result['bottomRightPosY'] = obj.bottomRightPosY
                     result['bottomRightPosX'] = obj.bottomRightPosX
                     return result
-                elif isinstance(obj, structs.raw.RawData):
+                elif isinstance(obj, robinpacker.structs.raw.RawData):
                     raw_fname = os.path.splitext(json_file_name)[0]  + '_' + obj.id + '.dmp'
                     logging.debug('Dumping raw data to {}'.format(raw_fname))
                     with file(raw_fname, 'wb') as raw_file:
@@ -83,7 +83,7 @@ class RulesJsonExporter(object):
                     result['id'] = obj.id
                     result['path'] = relative_fname
                     return result
-                elif isinstance(obj, structs.script.ScriptData):
+                elif isinstance(obj, robinpacker.structs.script.ScriptData):
                     script_fname = os.path.splitext(json_file_name)[0]  + '_' + obj.id + '.rrs'
                     logging.debug('Disassembling script data to {}'.format(script_fname))
                     script_exporter.export(obj, script_fname)

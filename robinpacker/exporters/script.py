@@ -2,11 +2,11 @@
 
 import os.path
 
-import disasm.script
+import robinpacker.script.disasm as disasm
 
 class ScriptExporter(object):
     def __init__(self):
-        self.disassembler = disasm.script.ScriptDisassembler()
+        self.disassembler = disasm.ScriptDisassembler()
 
     def export(self, scriptData, output_file_name):
         with file(output_file_name, 'w') as output_file:

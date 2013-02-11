@@ -1,5 +1,4 @@
 #! /usr/bin/python
-import collections
 try:
     import cStringIO as StringIO
 except ImportError:

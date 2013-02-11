@@ -2,8 +2,6 @@
 
 import struct
 
-import structs
-
 def pack(rfile, data, format):
     if type(data) == tuple or type(data) == list:
         result = struct.pack(format, *data)
@@ -97,14 +95,13 @@ class RulesBinaryPacker(object):
             pack(rfile, numEntries, format)
             rfile.write(rules.menuScripts.data)
 
-            # Chunk 7 & 8 - game scripts and indexes
+            # Chunk 7 & 8 - game scripts and sizes
             format = '<H'
             numEntries = len(rules.gameScripts)
             pack(rfile, numEntries, format)
-            totalSize = 0
             for script_data in rules.gameScripts:
-                pack(rfile, totalSize, format)
-                totalSize += len(script_data.data)
+                size = len(script_data.data)
+                pack(rfile, size, format)
             pack(rfile, totalSize, format)
             for script_data in rules.gameScripts:
                 rfile.write(script_data.data)

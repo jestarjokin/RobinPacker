@@ -8,7 +8,7 @@ try:
 except ImportError:
     Image = None
 
-import structs.gfx
+import robinpacker.structs.gfx
 
 class GfxJsonImporter(object):
     def importFile(self, json_file_name, gfx_data=None):
@@ -18,12 +18,12 @@ class GfxJsonImporter(object):
             except KeyError:
                 return dct
             if type_val == 'GfxData':
-                gfx_data = structs.gfx.GfxData()
+                gfx_data = robinpacker.structs.gfx.GfxData()
                 gfx_data.original_file_name = dct['original_file_name']
                 gfx_data.metadata = dct['metadata']
                 return gfx_data
             elif type_val == 'GfxMetadata':
-                metadata = structs.gfx.GfxMetadata(
+                metadata = robinpacker.structs.gfx.GfxMetadata(
                     dct['max_size'], dct['has_palette'], dct['width'], dct['height'])
                 return metadata
         with file(json_file_name, 'r') as json_file:
@@ -34,7 +34,7 @@ class GfxJsonImporter(object):
 class GfxRawImporter(object):
     def importFile(self, input_file_name, gfx_data=None):
         if gfx_data is None:
-            gfx_data = structs.gfx.GfxData()
+            gfx_data = robinpacker.structs.gfx.GfxData()
         with file(input_file_name, 'rb') as raw_file:
             gfx_data.data = array.array('B')
             gfx_data.fromfile(raw_file)
@@ -50,10 +50,10 @@ class GfxPngImporter(object):
         if Image is None:
             raise Exception('The Python Imaging Library (PIL) must be installed to load PNG files.') # TODO: use a custom exception
         png_data = Image.open(input_file_name)
-        if gfx_data.palette is None:
+        if png_data.palette is None or png_data.mode != 'P':
             raise Exception('Input images must have a 256-colour palette. 16/24/32-bit images are not supported.')
         if gfx_data is None:
-            gfx_data = structs.gfx.GfxData()
+            gfx_data = robinpacker.structs.gfx.GfxData()
         gfx_data.palette = array.array('B', png_data.palette.palette)
         gfx_data.data = array.array('B', png_data.getdata())
 
