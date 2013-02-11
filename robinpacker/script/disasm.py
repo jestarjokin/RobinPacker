@@ -6,36 +6,94 @@ except ImportError:
 import struct
 
 from opcodes import *
+import robinpacker.script.ast.elements as ast
 
 def unpack(rfile, format):
     result = struct.unpack(format, rfile.read(struct.calcsize(format)))
     return result[0] if len(result) == 1 else result
 
 
-class ScriptDisassembler(object):
-    """Adapted/translated from ScummVM."""
-    SCUMMVM_COMPATIBLE, RULES = range(2)
+class BytecodeToTreeConverter(object):
+    ARG_TYPE_MAP = (
+        None,
+        ast.ARG_TYPE_IMMEDIATE_VALUE,
+        ast.ARG_TYPE_COMPARE_OPERATION,
+        ast.ARG_TYPE_COMPUTE_OPERATION,
+        ast.ARG_TYPE_GET_VALUE_1,
+        ast.ARG_TYPE_GET_POS_FROM_SCRIPT
+    )
 
-    def __init__(self, output_mode=RULES):
-        self.output_mode = output_mode
+    def __init__(self):
+        pass
 
-    def _generate_method_call(self, opCode, script):
-        out_str = opCode.opName
-        out_str += "("
+    def _parse_function_call(self, opCode, script):
+        function_node = ast.FunctionNode()
+        function_node.name = opCode.opName
         for i in xrange(2, 2 + opCode.numArgs):
             opArgType = opCode[min(i, 2 + 4)] # only 5 arg types allowed
-            out_str += self._getArgumentString(opArgType, script)
-            if i != 2 + opCode.numArgs - 1:
-                out_str += ", "
-        out_str += ")"
-        return out_str
+            value = unpack(script, '<H')
+            arg_type = self.ARG_TYPE_MAP[opArgType]
+            argument_node = ast.ArgumentNode()
+            argument_node.value = value
+            argument_node.arg_type = arg_type
+            function_node.arguments.append(argument_node)
+        return function_node
 
-    def _getArgumentString(self, argType, script):
-        out_str = ""
-        if argType == kImmediateValue:
-            out_str = "0x{0:02X}".format(unpack(script, '<H'))
-        elif argType == kGetValue1:
+    def convert(self, script_byte_string, script_base_name):
+        script = StringIO.StringIO(script_byte_string)
+        eof = False
+        rule_counter = 0
+        root_node = ast.RootNode()
+        while not eof:
             val = unpack(script, '<H')
+            if val == 0xFFF6: # end of script
+                break
+
+            rule_counter += 1
+            rule_node = ast.RuleNode()
+            rule_node.name = "{0}-rule-{1:02d}".format(script_base_name, rule_counter)
+
+            # check the conditions.
+            while val != 0xFFF8:
+                conditional_node = ast.ConditionalNode()
+                is_negative_condition = val >= 1000
+                if is_negative_condition:
+                    val -= 1000
+                    conditional_node.negated = True
+
+                # op code type 1
+                assert val < len(conditionalOpCodes)
+                opCode = conditionalOpCodes[val]
+
+                function_node = self._parse_function_call(opCode, script)
+                conditional_node.function = function_node
+                rule_node.conditions.append(conditional_node)
+                val = unpack(script, '<H')
+
+            val = unpack(script, '<H')
+            while val != 0xFFF7:
+                # op code type 2
+                assert val < len(actionOpCodes)
+                opCode = actionOpCodes[val]
+                function_node = self._parse_function_call(opCode, script)
+                rule_node.actions.append(function_node)
+                val = unpack(script, '<H')
+
+            root_node.rules.append(rule_node)
+        script.close()
+        return root_node
+
+
+class TreeToRulesScriptWriter(object):
+    def __init__(self):
+        pass
+
+    def _getArgumentString(self, argument_node):
+        out_str = ""
+        if argument_node.arg_type == ast.ARG_TYPE_IMMEDIATE_VALUE:
+            out_str = "0x{0:02X}".format(argument_node.value)
+        elif argument_node.arg_type == ast.ARG_TYPE_GET_VALUE_1:
+            val = argument_node.value
             if val < 1000:
                 out_str = "0x{0:02X}".format(val)
             elif val > 1004:
@@ -50,8 +108,8 @@ class ScriptDisassembler(object):
                 out_str = "_currentCharacterVariables[6]"
             elif val == 1004:
                 out_str = "_word10804"
-        elif argType == kgetPosFromScript:
-            curWord = unpack(script, '<H')
+        elif argument_node.arg_type == ast.ARG_TYPE_GET_POS_FROM_SCRIPT:
+            curWord = argument_node.value
             tmpVal = curWord >> 8
             # switch statement
             if tmpVal == 0xFF:
@@ -82,131 +140,56 @@ class ScriptDisassembler(object):
                 out_str = "_savedMousePosDivided"
             else:
                 out_str = "(0x{0:02X},0x{0:02X})".format(curWord >> 8, curWord & 0xFF)
-        elif argType == kCompareOperation:
-            comp = unpack(script, '<H')
+        elif argument_node.arg_type == ast.ARG_TYPE_COMPARE_OPERATION:
+            comp = argument_node.value
             if comp != ord('<') and comp != ord('>'):
                 comp = ord('=')
             out_str = "{0:c}".format(comp)
-        elif argType == kComputeOperation:
-            comp = unpack(script, '<H')
+        elif argument_node.arg_type == ast.ARG_TYPE_COMPUTE_OPERATION:
+            comp = argument_node.value
             out_str = "{0:c}".format(comp)
         return out_str
 
-    def disassemble_scummvm_compatible(self, script, output_file, script_base_name):
-        eof = False
-        while not eof:
-            val = unpack(script, '<H')
-            if val == 0xFFF6: # end of script
-                return
-            hasIf = False
-            if val != 0xFFF8:
-                hasIf = True
-            firstIf = True
+    def _convert_function_call(self, function_node, output_file):
+        output_file.write(function_node.name)
+        output_file.write("(")
+        for i, argument_node in enumerate(function_node.arguments):
+            output_file.write(self._getArgumentString(argument_node))
+            if i < len(function_node.arguments) - 1:
+                output_file.write(", ")
+        output_file.write(")")
 
-            # check the conditions.
-            while val != 0xFFF8:
-                neg = False
-                if val >= 1000:
-                    val -= 1000
-                    # negative condition
-                    neg = True
-
-                # op code type 1
-                assert val < len(opCodes1)
-                opCode = opCodes1[val]
-
-                if firstIf:
-                    out_str = "if ("
-                    firstIf = False
-                else:
-                    out_str = "    and "
-                if neg:
-                    out_str += "not "
-
-                out_str += self._generate_method_call(opCode, script)
-
-                val = unpack(script, '<H')
-                if val == 0xFFF8:
-                    out_str += ")"
-
-                output_file.write("{0}\n".format(out_str))
-
-            output_file.write("{ \n")
-            val = unpack(script, '<H')
-            while val != 0xFFF7:
-                # op code type 2
-                assert val < len(opCodes2)
-                opCode = opCodes2[val]
-                out_str = "    "
-                out_str += self._generate_method_call(opCode, script)
-                out_str += ";"
-                output_file.write("{0}\n".format(out_str))
-                val = unpack(script, '<H')
-
-            output_file.write("} \n")
-            output_file.write(" \n")
-        script.close()
-
-    def disassemble_rules(self, script, output_file, script_base_name):
-        eof = False
-        rule_counter = 0
-        while not eof:
-            val = unpack(script, '<H')
-            if val == 0xFFF6: # end of script
-                return
-
-            rule_counter += 1
-            output_file.write("rule \"{0}-rule-{1:02d}\"\n".format(script_base_name, rule_counter))
-            has_conditions = val != 0xFFF8
-            if has_conditions:
-                output_file.write("  when\n")
-
-            # check the conditions.
-            while val != 0xFFF8:
-                out_str = "    "
-                is_negative_condition = val >= 1000
-                if is_negative_condition:
-                    val -= 1000
-                    out_str += "not "
-
-                # op code type 1
-                assert val < len(opCodes1)
-                opCode = opCodes1[val]
-
-                out_str += self._generate_method_call(opCode, script)
-
-                val = unpack(script, '<H')
-                if val != 0xFFF8:
-                    out_str += " and"
-
-                output_file.write("{0}\n".format(out_str))
-
-            if has_conditions:
+    def write_tree_to_file(self, tree, output_file):
+        for rule in tree.rules:
+            output_file.write("rule \"{}\"\n".format(rule.name))
+            output_file.write("  when\n")
+            for i, conditional_node in enumerate(rule.conditions):
+                output_file.write("    ")
+                if conditional_node.negated:
+                    output_file.write("not ")
+                self._convert_function_call(conditional_node.function, output_file)
+                if i < len(rule.conditions) - 1:
+                    output_file.write(" and")
+                output_file.write("\n")
+            if len(rule.conditions):
                 output_file.write("  then\n")
             else:
                 output_file.write("  always\n")
-            val = unpack(script, '<H')
-            while val != 0xFFF7:
-                # op code type 2
-                assert val < len(opCodes2)
-                opCode = opCodes2[val]
-                out_str = "    "
-                out_str += self._generate_method_call(opCode, script)
+            for function_node in rule.actions:
+                output_file.write("    ")
+                self._convert_function_call(function_node, output_file)
+                output_file.write("\n")
+            output_file.write("end\n\n")
 
-                output_file.write("{0}\n".format(out_str))
-                val = unpack(script, '<H')
 
-            output_file.write("end\n")
-            output_file.write("\n")
-        script.close()
+class ScriptDisassembler(object):
+    def __init__(self):
+        self.to_tree_converter = BytecodeToTreeConverter()
+        self.script_writer = TreeToRulesScriptWriter()
 
     def disassemble(self, script_byte_string, output_file, script_base_name):
         """
         script should be a string of bytes.
         """
-        script = StringIO.StringIO(script_byte_string)
-        if self.output_mode == self.SCUMMVM_COMPATIBLE:
-            return self.disassemble_scummvm_compatible(script, output_file, script_base_name)
-        else:
-            return self.disassemble_rules(script, output_file, script_base_name)
-
+        root_node = self.to_tree_converter.convert(script_byte_string, script_base_name)
+        self.script_writer.write_tree_to_file(root_node, output_file)

@@ -4,7 +4,7 @@ kNone, kImmediateValue, kCompareOperation, kComputeOperation, kGetValue1, kgetPo
 
 OpCode = collections.namedtuple('OpCode', 'opName, numArgs, arg1, arg2, arg3, arg4, arg5')
 
-opCodes1 = (
+conditionalOpCodes = (
     OpCode( "OC_checkCharacterGoalPos", 1, kgetPosFromScript, kNone, kNone, kNone, kNone ),
     OpCode( "OC_comparePos", 2, kGetValue1, kgetPosFromScript, kNone, kNone, kNone ),
     OpCode( "OC_checkIsoMap3", 1, kImmediateValue, kNone, kNone, kNone, kNone ),
@@ -57,7 +57,7 @@ opCodes1 = (
     OpCode( "OC_checkViewPortCharacterTarget", 1, kGetValue1, kNone, kNone, kNone, kNone ),
 )
 
-opCodes2 = (
+actionOpCodes = (
     OpCode( "OC_setWord18821", 1, kGetValue1, kNone, kNone, kNone, kNone ),
     OpCode( "OC_ChangeIsoMap", 3, kgetPosFromScript, kImmediateValue, kImmediateValue, kNone, kNone ),
     OpCode( "OC_startSpeech", 1, kImmediateValue, kNone, kNone, kNone, kNone ),
