@@ -28,7 +28,7 @@ class BytecodeToTreeConverter(object):
 
     def _parse_function_call(self, opCode, script):
         function_node = ast.FunctionNode()
-        function_node.name = opCode.opName
+        function_node.opcode = opCode
         for i in xrange(2, 2 + opCode.numArgs):
             opArgType = opCode[min(i, 2 + 4)] # only 5 arg types allowed
             value = unpack(script, '<H')
@@ -151,7 +151,7 @@ class TreeToRulesScriptWriter(object):
         return out_str
 
     def _convert_function_call(self, function_node, output_file):
-        output_file.write(function_node.name)
+        output_file.write(function_node.opcode.opName)
         output_file.write("(")
         for i, argument_node in enumerate(function_node.arguments):
             output_file.write(self._getArgumentString(argument_node))

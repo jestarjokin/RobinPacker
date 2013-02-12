@@ -56,6 +56,7 @@ conditionalOpCodes = (
     OpCode( "OC_checkCodeEntered", 3, kImmediateValue, kImmediateValue, kImmediateValue, kNone, kNone ),
     OpCode( "OC_checkViewPortCharacterTarget", 1, kGetValue1, kNone, kNone, kNone, kNone ),
 )
+conditionalOpCodesLookup = {opcode.opName : (i, opcode) for i, opcode in enumerate(conditionalOpCodes)}
 
 actionOpCodes = (
     OpCode( "OC_setWord18821", 1, kGetValue1, kNone, kNone, kNone, kNone ),
@@ -161,4 +162,4 @@ actionOpCodes = (
     OpCode( "OC_setCharacterMapColor", 2, kGetValue1, kImmediateValue, kNone, kNone, kNone ),
     OpCode( "OC_initGameAreaDisplay", 0, kNone, kNone, kNone, kNone, kNone )
 )
-
+actionOpCodesLookup = {opcode.opName : (i, opcode) for i, opcode in enumerate(actionOpCodes)}
