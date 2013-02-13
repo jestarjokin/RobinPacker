@@ -1,7 +1,6 @@
 #! /usr/bin/python
 import array
 import json
-import os.path
 
 try:
     import Image

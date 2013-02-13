@@ -1,17 +1,12 @@
 #! /usr/bin/python
 
-import struct
-
 from robinpacker.structs.character import CharacterData
 from robinpacker.structs.point import PointData
 from robinpacker.structs.rules import RulesData
 from robinpacker.structs.rect import RectData
 from robinpacker.structs.raw import RawData
 from robinpacker.structs.script import ScriptData
-
-def unpack(rfile, format):
-    result = struct.unpack(format, rfile.read(struct.calcsize(format)))
-    return result[0] if len(result) == 1 else result
+from robinpacker.util import unpack
 
 packedStringLookup = ['I am ', 'You are ', 'you are ', 'hou art ', 'in the ', 'is the ', 'is a ', 'in a ', 'To the ',
                       'to the ', 'by ', 'going ', 'here ', 'The', 'the', 'and ', 'some ', 'build', 'not ', 'way', 'I ',

@@ -1,13 +1,6 @@
 #! /usr/bin/python
 
-import struct
-
-def pack(rfile, data, format):
-    if type(data) == tuple or type(data) == list:
-        result = struct.pack(format, *data)
-    else:
-        result = struct.pack(format, data)
-    rfile.write(result)
+from robinpacker.util import pack
 
 packedStringLookup = ['I am ', 'You are ', 'you are ', 'hou art ', 'in the ', 'is the ', 'is a ', 'in a ', 'To the ',
                       'to the ', 'by ', 'going ', 'here ', 'The', 'the', 'and ', 'some ', 'build', 'not ', 'way', 'I ',

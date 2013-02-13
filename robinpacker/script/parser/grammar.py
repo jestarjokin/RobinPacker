@@ -2,7 +2,7 @@ from pyparsing import *
 
 import robinpacker.script.parser.actions as actions
 
-string = dblQuotedString
+string_value = dblQuotedString.copy()
 
 integer = Word(nums)
 hex_number = Suppress(Literal('0x')) + Word(nums + '[a-fA-F]', max=4)
@@ -14,29 +14,35 @@ compare_arg = None
 compute_arg = None
 point_arg = None
 
-arguments = ZeroOrMore(
-    immediate_arg #|
+argument = (immediate_arg #|
 #    get_value_arg |
 #    compare_arg |
 #    compute_arg |
 #    point_arg
 ) # TODO
-function_call = Word(alphas, alphanums + '_')('function_name') + Suppress(Literal('(')) + Group(arguments)('arguments') + Suppress(Literal(')'))
-action = function_call
+
+arguments = argument + ZeroOrMore(Suppress(Literal(',')) + argument)
+
+function_call = Word(alphas, alphanums + '_')('function_name') + Suppress(Literal('(')) + Group(Optional(arguments))('arguments') + Suppress(Literal(')'))
+action_function = function_call.copy()
 conditional = Optional(Keyword('not'))('negated') + function_call
 
-rule = (Suppress(Keyword('rule')) + string +
-        Suppress(Keyword('when')) + conditional +
-            ZeroOrMore(Suppress(Keyword('and')) + conditional) +
-        Suppress(Keyword('then')) + OneOrMore(action) +
+rule = (Suppress(Keyword('rule')) + string_value +
+        Suppress(Keyword('when')) + Group(conditional +
+            ZeroOrMore(Suppress(Keyword('and')) + conditional))('conditionals') +
+        Suppress(Keyword('then')) + Group(OneOrMore(action_function))('actions') +
         Suppress(Keyword('end'))
 )
 
-expr = ZeroOrMore(rule)
-bnf = expr
+root = ZeroOrMore(rule)('rules')
+
 
 # Assign some parse actions
+string_value.setParseAction(actions.parse_string)
 integer.setParseAction(actions.parse_int)
 hex_number.setParseAction(actions.parse_hex)
 immediate_arg.setParseAction(actions.parse_immediate_arg)
-function_call.setParseAction(actions.parse_function_call)
+action_function.setParseAction(actions.parse_action_function)
+conditional.setParseAction(actions.parse_conditional)
+rule.setParseAction(actions.parse_rule)
+root.setParseAction(actions.parse_root)

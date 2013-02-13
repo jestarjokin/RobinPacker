@@ -2,7 +2,6 @@
 
 import json
 import os.path
-#import robinpacker.structs
 
 from robinpacker.structs.character import CharacterData
 from robinpacker.structs.point import PointData
