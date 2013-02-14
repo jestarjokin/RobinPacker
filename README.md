@@ -20,4 +20,4 @@ To pack rules files:
   
 To convert PNG files back to games graphics:
 
-    robinpacker.py -p autumn_out.gfx autumn_packed.gfx
+    robinpacker.py -p autumn_out.png autumn_packed.gfx
