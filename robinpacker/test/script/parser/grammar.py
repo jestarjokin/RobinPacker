@@ -167,10 +167,15 @@ class GrammarTest(unittest.TestCase):
         input = """
             rule "erules_out_gameScript_8-rule-26"
               always
-                OC_callScript(0x01, characterIndex)
+                OC_enableCurrentCharacterScript(0x00)
             end
         """
-        self.fail() # TODO
+        result = grammar.rule.parseString(input)
+        self.assertEqual(1, len(result))
+        rule_node = result[0]
+        self.assertEqual(0, len(rule_node.conditions))
+        self.assertEqual(1, len(rule_node.actions))
+        self.assertEqual('OC_enableCurrentCharacterScript', rule_node.actions[0].opcode.opName)
 
     def testParseMultipleRules(self):
         input = """

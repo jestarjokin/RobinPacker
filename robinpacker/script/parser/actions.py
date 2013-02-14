@@ -47,13 +47,13 @@ def __parse_function_call(function_name, args, is_conditional):
     return function_node
 
 def parse_rule(toks):
-    rule_name = toks[0]
-    conditionals = toks['conditionals']
-    actions = toks['actions']
     rule_node = ast.RuleNode()
-    rule_node.name = rule_name
-    rule_node.conditions = list(conditionals)
-    rule_node.actions = list(actions)
+    rule_node.name = toks[0]
+    try:
+        rule_node.conditions = list(toks['conditionals'])
+    except KeyError:
+        pass # this is for "always" rules, which have no conditionals
+    rule_node.actions = toks['actions']
     return rule_node
 
 def parse_root(toks):

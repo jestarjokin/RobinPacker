@@ -30,8 +30,12 @@ conditional = Optional(Keyword('not'))('negated') + function_call
 multiple_conditionals = Group(conditional + ZeroOrMore(Suppress(Keyword('and')) + conditional))('conditionals')
 
 rule = (Suppress(Keyword('rule')) + string_value +
-        Suppress(Keyword('when')) + multiple_conditionals +
-        Suppress(Keyword('then')) + Group(OneOrMore(action_function))('actions') +
+        (Suppress(Keyword('always')) |
+         (Suppress(Keyword('when')) +
+          multiple_conditionals +
+          Suppress(Keyword('then'))
+         )
+        ) + Group(OneOrMore(action_function))('actions') +
         Suppress(Keyword('end'))
 )
 
