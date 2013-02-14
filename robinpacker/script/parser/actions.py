@@ -17,6 +17,23 @@ def parse_immediate_arg(toks):
     arg_node.value = toks[0]
     return arg_node
 
+def parse_get_value_arg(toks):
+    funky_values = {
+        '_word10804' : 1004,
+        '_currentCharacterVariables[6]' : 1003,
+        '_word16F00_characterId' : 1002,
+        'characterIndex' : 1001,
+        '_selectedCharacterId' : 1000,
+    }
+    try:
+        value = funky_values[toks[0]]
+    except KeyError:
+        value = toks[1]
+    arg_node = ast.ArgumentNode()
+    arg_node.arg_type = ast.ARG_TYPE_GET_VALUE_1
+    arg_node.value = value
+    return arg_node
+
 def parse_action_function(toks):
     function_name = toks[0]
     args = toks[1]

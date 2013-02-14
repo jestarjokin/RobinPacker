@@ -22,12 +22,23 @@ class GrammarTest(unittest.TestCase):
         result = grammar.hex_number.parseString('0x2B')
         self.assertEqual(0x2B, result[0])
 
+    def testParseNumber(self):
+        result = grammar.number.parseString('0xA5')
+        self.assertEqual(0xA5, result[0])
+        result = grammar.number.parseString('52')
+        self.assertEqual(52, result[0])
+
     def testParseImmediateArg(self):
         result = grammar.immediate_arg.parseString('0xA5')
         arg_node = result[0]
         self.assertEqual(ast.ArgumentNode, type(arg_node))
         self.assertEqual(ast.ARG_TYPE_IMMEDIATE_VALUE, arg_node.arg_type)
         self.assertEqual(0xA5, arg_node.value)
+        result = grammar.immediate_arg.parseString('13')
+        arg_node = result[0]
+        self.assertEqual(ast.ArgumentNode, type(arg_node))
+        self.assertEqual(ast.ARG_TYPE_IMMEDIATE_VALUE, arg_node.arg_type)
+        self.assertEqual(13, arg_node.value)
 
     def testParseMultipleImmediateArguments(self):
         result = grammar.arguments.parseString('0xA5, 52')
@@ -35,6 +46,31 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(ast.ArgumentNode, type(result[0]))
         self.assertEqual(ast.ArgumentNode, type(result[1]))
         self.assertNotEqual(result[0].value, result[1].value)
+
+    def testParseGetValueArg(self):
+        arg_node = grammar.get_value_arg.parseString('_word10804')[0]
+        self.assertEqual(1004, arg_node.value)
+        arg_node = grammar.get_value_arg.parseString('_currentCharacterVariables[6]')[0]
+        self.assertEqual(1003, arg_node.value)
+        arg_node = grammar.get_value_arg.parseString('_word16F00_characterId')[0]
+        self.assertEqual(1002, arg_node.value)
+        arg_node = grammar.get_value_arg.parseString('characterIndex')[0]
+        self.assertEqual(1001, arg_node.value)
+        arg_node = grammar.get_value_arg.parseString('_selectedCharacterId')[0]
+        self.assertEqual(1000, arg_node.value)
+        arg_node = grammar.get_value_arg.parseString('getValue1(0x2B00)')[0]
+        self.assertEqual(0x2B00, arg_node.value)
+        arg_node = grammar.get_value_arg.parseString('val(0x2B)')[0]
+        self.assertEqual(0x2B, arg_node.value)
+
+    def testParseCompareArg(self):
+        self.fail()
+
+    def testParseComputeArg(self):
+        self.fail()
+
+    def testParsePointArg(self):
+        self.fail()
 
     def testParseActionFunctionWithImmediateHexArgument(self):
         result = grammar.action_function.parseString('OC_sub18213(0xA5)')
@@ -58,6 +94,19 @@ class GrammarTest(unittest.TestCase):
         argument_node = function_node.arguments[1]
         self.assertEqual(ast.ARG_TYPE_IMMEDIATE_VALUE, argument_node.arg_type)
         self.assertEqual(0x0A, argument_node.value)
+
+    def testParseActionFunctionWithOneImmediateArgAndOneGetValueArg(self):
+        result = grammar.action_function.parseString('OC_callScript(0x01, characterIndex)')
+        function_node = result[0]
+        opcode_val, expected_opcode = opcodes.actionOpCodesLookup['OC_callScript']
+        self.assertEqual(expected_opcode, function_node.opcode)
+        self.assertEqual(2, len(function_node.arguments))
+        argument_node = function_node.arguments[0]
+        self.assertEqual(ast.ARG_TYPE_IMMEDIATE_VALUE, argument_node.arg_type)
+        self.assertEqual(0x01, argument_node.value)
+        argument_node = function_node.arguments[1]
+        self.assertEqual(ast.ARG_TYPE_GET_VALUE_1, argument_node.arg_type)
+        self.assertEqual(1001, argument_node.value)
 
     def testParseActionFunctionFailures(self):
         # Too many arguments
@@ -167,7 +216,7 @@ class GrammarTest(unittest.TestCase):
         input = """
             rule "erules_out_gameScript_8-rule-26"
               always
-                OC_enableCurrentCharacterScript(0x00)
+                OC_callScript(0x01, characterIndex)
             end
         """
         result = grammar.rule.parseString(input)
@@ -175,7 +224,7 @@ class GrammarTest(unittest.TestCase):
         rule_node = result[0]
         self.assertEqual(0, len(rule_node.conditions))
         self.assertEqual(1, len(rule_node.actions))
-        self.assertEqual('OC_enableCurrentCharacterScript', rule_node.actions[0].opcode.opName)
+        self.assertEqual('OC_callScript', rule_node.actions[0].opcode.opName)
 
     def testParseMultipleRules(self):
         input = """
