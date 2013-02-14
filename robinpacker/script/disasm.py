@@ -113,11 +113,11 @@ class TreeToRulesScriptWriter(object):
             tmpVal = curWord >> 8
             # switch statement
             if tmpVal == 0xFF:
-                out_str = "(_rulesBuffer2_13[currentCharacter],_rulesBuffer2_14[currentCharacter])"
+                out_str = "(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])"
             elif tmpVal == 0xFE:
                 index = curWord & 0xFF
                 assert 0 <= index < 40
-                out_str = "_vm->_rulesBuffer2_13[{0}],_vm->_rulesBuffer2_14[{0}]".format(index)
+                out_str = "(_vm->_rulesBuffer2_13[{0}], _vm->_rulesBuffer2_14[{0}])".format(index)
             elif tmpVal == 0xFD:
                 out_str = "_currentScriptCharacterPosition"
             elif tmpVal == 0xFC:
