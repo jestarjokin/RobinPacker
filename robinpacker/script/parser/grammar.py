@@ -9,9 +9,7 @@ def define_get_value_arg():
         '_currentCharacterVariables[6]',
         '_word16F00_characterId',
         'characterIndex',
-        '_selectedCharacterId',
-        #'getValue1(0x{0:02X})',
-        #'val(0x{0:02X})'
+        '_selectedCharacterId'
     ]
     get_value_arg = (oneOf(funky_values) |
                      (oneOf(['getValue1', 'val']) +
@@ -21,6 +19,64 @@ def define_get_value_arg():
                      )
                     )
     return get_value_arg
+
+def define_point_arg():
+    global number
+    funky_values = [
+        '(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])',
+        #'(_vm->_rulesBuffer2_13[{0}], _vm->_rulesBuffer2_14[{0}])',
+        '_currentScriptCharacterPosition',
+        #'(characterPositionTileX[{0}], characterPositionTileY[{0}])',
+        '(characterPositionTileX[_word16F00_characterId], characterPositionTileY[_word16F00_characterId])',
+        '(_array10999PosX[currentCharacter], _array109C1PosY[currentCharacter])',
+        '(_currentCharacterVariables[4], _currentCharacterVariables[5])',
+        #'_vm->_rulesBuffer12Pos3[{0}]',
+        '(_characterPositionTileX[_currentCharacterVariables[6]], _characterPositionTileY[_currentCharacterVariables[6]])',
+        '_savedMousePosDivided',
+        #'(0x{0:02X}, 0x{0:02X})'
+    ]
+    rules_buffer_2_arg = (
+        Suppress(Literal('(')) +
+        Literal('_vm->_rulesBuffer2_13') +
+        Suppress(Literal('[')) +
+        number +
+        Suppress(Literal(']')) +
+        Suppress(Literal(',')) +
+        Literal('_vm->_rulesBuffer2_14') +
+        Suppress(Literal('[')) +
+        number +
+        Suppress(Literal(']')) +
+        Suppress(Literal(')'))
+    )
+    character_pos_arg = (
+        Suppress(Literal('(')) +
+        Literal('characterPositionTileX') +
+        Suppress(Literal('[')) +
+        number +
+        Suppress(Literal(']')) +
+        Suppress(Literal(',')) +
+        Literal('characterPositionTileY') +
+        Suppress(Literal('[')) +
+        number +
+        Suppress(Literal(']')) +
+        Suppress(Literal(')'))
+    )
+    rules_buffer_12_arg = (
+        Literal('_vm->_rulesBuffer12Pos3') +
+        Suppress(Literal('[')) +
+        number +
+        Suppress(Literal(']'))
+        )
+    normal_point_arg = (
+        Suppress(Literal('(')) +
+        number +
+        Suppress(Literal(',')) +
+        number +
+        Suppress(Literal(')'))
+    )
+    point_arg = oneOf(funky_values) | rules_buffer_2_arg | character_pos_arg | rules_buffer_12_arg | normal_point_arg
+    return point_arg
+
 
 string_value = dblQuotedString.copy()
 
@@ -34,14 +90,14 @@ immediate_arg = hex_number | integer
 get_value_arg = define_get_value_arg()
 compare_arg = compare_operator
 compute_arg = compute_operator
-point_arg = None
+point_arg = define_point_arg()
 
 argument = (immediate_arg |
     get_value_arg |
     compare_arg |
-    compute_arg #|
-#    point_arg
-) # TODO
+    compute_arg |
+    point_arg
+)
 
 arguments = delimitedList(argument)
 
@@ -72,6 +128,7 @@ immediate_arg.setParseAction(actions.parse_immediate_arg)
 get_value_arg.setParseAction(actions.parse_get_value_arg)
 compare_arg.setParseAction(actions.parse_compare_arg)
 compute_arg.setParseAction(actions.parse_compute_arg)
+point_arg.setParseAction(actions.parse_point_arg)
 action_function.setParseAction(actions.parse_action_function)
 conditional.setParseAction(actions.parse_conditional)
 rule.setParseAction(actions.parse_rule)

@@ -108,6 +108,10 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(ord(input), arg_node.value)
 
     def testParsePointArg(self):
+        input = '(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])'
+        arg_node = grammar.point_arg.parseString(input)[0]
+        self.assertEqual(ast.ARG_TYPE_GET_POS_FROM_SCRIPT, arg_node.arg_type)
+        self.assertEqual(0xFF00, arg_node.value)
         self.fail()
 
     def testParseActionFunctionWithImmediateHexArgument(self):

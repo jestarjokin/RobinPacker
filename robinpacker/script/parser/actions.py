@@ -51,6 +51,27 @@ def parse_compute_arg(toks):
     arg_node.value = value
     return arg_node
 
+def parse_point_arg(toks):
+    funky_values = {
+        '(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])' : 0xFF00,
+        '_currentScriptCharacterPosition' : 0xFD00,
+        '(characterPositionTileX[_word16F00_characterId], characterPositionTileY[_word16F00_characterId])' : 0xFB00,
+        '(_array10999PosX[currentCharacter], _array109C1PosY[currentCharacter])' : 0xFA00,
+        '(_currentCharacterVariables[4], _currentCharacterVariables[5])' : 0xF900,
+        '(_characterPositionTileX[_currentCharacterVariables[6]], _characterPositionTileY[_currentCharacterVariables[6]])' : 0xF700,
+        '_savedMousePosDivided' : 0xF600,
+    }
+    print len(toks)
+    print toks
+    if len(toks) == 1:
+        value = funky_values[toks[0]]
+    else:
+        value = None
+    arg_node = ast.ArgumentNode()
+    arg_node.arg_type = ast.ARG_TYPE_GET_POS_FROM_SCRIPT
+    arg_node.value = value
+    return arg_node
+
 def parse_action_function(toks):
     function_name = toks[0]
     args = toks[1]
@@ -71,11 +92,11 @@ def __parse_function_call(function_name, args, is_conditional):
     try:
         opcode_value, opcode = opcode_lookup[function_name]
     except KeyError:
-        raise RobinScriptError('Unknown function call: {}'.format(function_name)) # TODO: custom exception
+        raise RobinScriptError('Unknown function call: {}'.format(function_name))
     if opcode.numArgs != len(args):
         raise RobinScriptError('Invalid number of arguments passed to function "{}". Expected {}, but was passed {}.'.format(
             function_name, opcode.numArgs, len(args)
-        )) # TODO: custom exception
+        ))
     function_node.opcode = opcode
     function_node.arguments = list(args)
     return function_node
