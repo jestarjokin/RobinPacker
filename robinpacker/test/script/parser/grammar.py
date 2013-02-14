@@ -49,25 +49,63 @@ class GrammarTest(unittest.TestCase):
 
     def testParseGetValueArg(self):
         arg_node = grammar.get_value_arg.parseString('_word10804')[0]
+        self.assertEqual(ast.ARG_TYPE_GET_VALUE_1, arg_node.arg_type)
         self.assertEqual(1004, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('_currentCharacterVariables[6]')[0]
+        self.assertEqual(ast.ARG_TYPE_GET_VALUE_1, arg_node.arg_type)
         self.assertEqual(1003, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('_word16F00_characterId')[0]
+        self.assertEqual(ast.ARG_TYPE_GET_VALUE_1, arg_node.arg_type)
         self.assertEqual(1002, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('characterIndex')[0]
+        self.assertEqual(ast.ARG_TYPE_GET_VALUE_1, arg_node.arg_type)
         self.assertEqual(1001, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('_selectedCharacterId')[0]
+        self.assertEqual(ast.ARG_TYPE_GET_VALUE_1, arg_node.arg_type)
         self.assertEqual(1000, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('getValue1(0x2B00)')[0]
+        self.assertEqual(ast.ARG_TYPE_GET_VALUE_1, arg_node.arg_type)
         self.assertEqual(0x2B00, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('val(0x2B)')[0]
+        self.assertEqual(ast.ARG_TYPE_GET_VALUE_1, arg_node.arg_type)
         self.assertEqual(0x2B, arg_node.value)
 
     def testParseCompareArg(self):
-        self.fail()
+        arg_node = grammar.compare_arg.parseString('<')[0]
+        self.assertEqual(ast.ARG_TYPE_COMPARE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord('<'), arg_node.value)
+        arg_node = grammar.compare_arg.parseString('>')[0]
+        self.assertEqual(ast.ARG_TYPE_COMPARE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord('>'), arg_node.value)
+        arg_node = grammar.compare_arg.parseString('==')[0]
+        self.assertEqual(ast.ARG_TYPE_COMPARE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord('='), arg_node.value)
 
     def testParseComputeArg(self):
-        self.fail()
+        input = '-'
+        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ast.ARG_TYPE_COMPUTE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord(input), arg_node.value)
+        input = '+'
+        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ast.ARG_TYPE_COMPUTE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord(input), arg_node.value)
+        input = '*'
+        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ast.ARG_TYPE_COMPUTE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord(input), arg_node.value)
+        input = '/'
+        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ast.ARG_TYPE_COMPUTE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord(input), arg_node.value)
+        input = '%'
+        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ast.ARG_TYPE_COMPUTE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord(input), arg_node.value)
+        input = '='
+        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ast.ARG_TYPE_COMPUTE_OPERATION, arg_node.arg_type)
+        self.assertEqual(ord(input), arg_node.value)
 
     def testParsePointArg(self):
         self.fail()

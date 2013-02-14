@@ -143,8 +143,9 @@ class TreeToRulesScriptWriter(object):
         elif argument_node.arg_type == ast.ARG_TYPE_COMPARE_OPERATION:
             comp = argument_node.value
             if comp != ord('<') and comp != ord('>'):
-                comp = ord('=')
-            out_str = "{0:c}".format(comp)
+                out_str = '=='
+            else:
+                out_str = "{0:c}".format(comp)
         elif argument_node.arg_type == ast.ARG_TYPE_COMPUTE_OPERATION:
             comp = argument_node.value
             out_str = "{0:c}".format(comp)

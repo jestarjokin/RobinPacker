@@ -27,17 +27,19 @@ string_value = dblQuotedString.copy()
 integer = Word(nums)
 hex_number = Suppress(Literal('0x')) + Word(nums + srange('[a-fA-F]'), max=4)
 number = hex_number | integer
+compare_operator = oneOf(['<', '>', '=='])
+compute_operator = oneOf(['-', '+', '*', '/', '%', '='])
 
 immediate_arg = hex_number | integer
 get_value_arg = define_get_value_arg()
-compare_arg = None
-compute_arg = None
+compare_arg = compare_operator
+compute_arg = compute_operator
 point_arg = None
 
 argument = (immediate_arg |
-    get_value_arg #|
-#    compare_arg |
-#    compute_arg |
+    get_value_arg |
+    compare_arg |
+    compute_arg #|
 #    point_arg
 ) # TODO
 
@@ -68,6 +70,8 @@ integer.setParseAction(actions.parse_int)
 hex_number.setParseAction(actions.parse_hex)
 immediate_arg.setParseAction(actions.parse_immediate_arg)
 get_value_arg.setParseAction(actions.parse_get_value_arg)
+compare_arg.setParseAction(actions.parse_compare_arg)
+compute_arg.setParseAction(actions.parse_compute_arg)
 action_function.setParseAction(actions.parse_action_function)
 conditional.setParseAction(actions.parse_conditional)
 rule.setParseAction(actions.parse_rule)

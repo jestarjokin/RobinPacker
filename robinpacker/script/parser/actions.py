@@ -34,6 +34,23 @@ def parse_get_value_arg(toks):
     arg_node.value = value
     return arg_node
 
+def parse_compare_arg(toks):
+    value = toks[0]
+    if value == '==':
+        value = '='
+    value = ord(value)
+    arg_node = ast.ArgumentNode()
+    arg_node.arg_type = ast.ARG_TYPE_COMPARE_OPERATION
+    arg_node.value = value
+    return arg_node
+
+def parse_compute_arg(toks):
+    value = ord(toks[0])
+    arg_node = ast.ArgumentNode()
+    arg_node.arg_type = ast.ARG_TYPE_COMPUTE_OPERATION
+    arg_node.value = value
+    return arg_node
+
 def parse_action_function(toks):
     function_name = toks[0]
     args = toks[1]
