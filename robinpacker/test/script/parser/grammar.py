@@ -17,6 +17,10 @@ class GrammarTest(unittest.TestCase):
     def testParseHexNumber(self):
         result = grammar.hex_number.parseString('0xA5')
         self.assertEqual(0xA5, result[0])
+        result = grammar.hex_number.parseString('0x99')
+        self.assertEqual(0x99, result[0])
+        result = grammar.hex_number.parseString('0x2B')
+        self.assertEqual(0x2B, result[0])
 
     def testParseImmediateArg(self):
         result = grammar.immediate_arg.parseString('0xA5')
@@ -24,6 +28,13 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(ast.ArgumentNode, type(arg_node))
         self.assertEqual(ast.ARG_TYPE_IMMEDIATE_VALUE, arg_node.arg_type)
         self.assertEqual(0xA5, arg_node.value)
+
+    def testParseMultipleImmediateArguments(self):
+        result = grammar.arguments.parseString('0xA5, 52')
+        self.assertEqual(2, len(result))
+        self.assertEqual(ast.ArgumentNode, type(result[0]))
+        self.assertEqual(ast.ArgumentNode, type(result[1]))
+        self.assertNotEqual(result[0].value, result[1].value)
 
     def testParseActionFunctionWithImmediateHexArgument(self):
         result = grammar.action_function.parseString('OC_sub18213(0xA5)')
@@ -80,6 +91,13 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(ast.ARG_TYPE_IMMEDIATE_VALUE, argument_node.arg_type)
         self.assertEqual(0x27, argument_node.value)
 
+    def testParseMultipleConditionals(self):
+        result = grammar.multiple_conditionals.parseString('OC_CurrentCharacterVar0Equals(0x01) and OC_sub17782(0x2B)')
+        conditionals = result['conditionals']
+        self.assertEqual(2, len(conditionals))
+        self.assertEqual(ast.ConditionalNode, type(conditionals[0]))
+        self.assertEqual(ast.ConditionalNode, type(conditionals[1]))
+
     def testParseRule(self):
         input = """
             rule "erulesout_gameScript_22-rule-06"
@@ -95,6 +113,9 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(1, len(rule_node.conditions))
         conditional_node = rule_node.conditions[0]
         self.assertEqual('OC_CurrentCharacterVar0Equals', conditional_node.function.opcode.opName)
+        self.assertEqual(1, len(rule_node.actions))
+        action_node = rule_node.actions[0]
+        self.assertEqual('OC_enableCurrentCharacterScript', action_node.opcode.opName)
 
     def testParseRuleWithMultipleConditionals(self):
         input = """
@@ -109,6 +130,68 @@ class GrammarTest(unittest.TestCase):
         result = grammar.rule.parseString(input)
         rule_node = result[0]
         self.assertEqual('erulesout_gameScript_22-rule-06', rule_node.name)
-        self.assertEqual(1, len(rule_node.conditions))
+        self.assertEqual(2, len(rule_node.conditions))
         conditional_node = rule_node.conditions[0]
         self.assertEqual('OC_CurrentCharacterVar0Equals', conditional_node.function.opcode.opName)
+        conditional_node = rule_node.conditions[1]
+        self.assertEqual('OC_sub17782', conditional_node.function.opcode.opName)
+        self.assertEqual(1, len(rule_node.actions))
+        action_node = rule_node.actions[0]
+        self.assertEqual('OC_enableCurrentCharacterScript', action_node.opcode.opName)
+
+    def testParseRuleWithMultipleConditionalsAndMultipleActions(self):
+        input = """
+            rule "erules_out_gameScript_8-rule-13"
+              when
+                OC_compWord16EFE(0x6C) and
+                OC_IsCurrentCharacterVar0LessEqualThan(0x52) and
+                not OC_sub17782(0x2B)
+              then
+                OC_setCurrentCharacterVar6(0x1B)
+                OC_enableCurrentCharacterScript(0x1E)
+            end
+        """
+        result = grammar.rule.parseString(input)
+        rule_node = result[0]
+        self.assertEqual('erules_out_gameScript_8-rule-13', rule_node.name)
+        self.assertEqual(3, len(rule_node.conditions))
+        self.assertEqual('OC_compWord16EFE', rule_node.conditions[0].function.opcode.opName)
+        self.assertEqual('OC_IsCurrentCharacterVar0LessEqualThan', rule_node.conditions[1].function.opcode.opName)
+        self.assertEqual('OC_sub17782', rule_node.conditions[2].function.opcode.opName)
+        self.assertEqual(True, rule_node.conditions[2].negated)
+        self.assertEqual(2, len(rule_node.actions))
+        self.assertEqual('OC_setCurrentCharacterVar6', rule_node.actions[0].opcode.opName)
+        self.assertEqual('OC_enableCurrentCharacterScript', rule_node.actions[1].opcode.opName)
+
+    def testParseRuleWithNoConditionals(self):
+        input = """
+            rule "erules_out_gameScript_8-rule-26"
+              always
+                OC_callScript(0x01, characterIndex)
+            end
+        """
+        self.fail() # TODO
+
+    def testParseMultipleRules(self):
+        input = """
+            rule "erulesout_gameScript_22-rule-06"
+              when
+                OC_CurrentCharacterVar0Equals(0x01) and
+                OC_sub17782(0x2B)
+              then
+                OC_enableCurrentCharacterScript(0x00)
+            end
+
+            rule "erulesout_gameScript_22-rule-07"
+              when
+                OC_CurrentCharacterVar0Equals(0x02) and
+                OC_sub17782(0x2C)
+              then
+                OC_enableCurrentCharacterScript(0x01)
+            end
+        """
+        result = grammar.root.parseString(input)
+        root_node = result[0]
+        self.assertEqual(2, len(root_node.rules))
+        self.assertEqual(ast.RuleNode, type(root_node.rules[0]))
+        self.assertEqual(ast.RuleNode, type(root_node.rules[1]))

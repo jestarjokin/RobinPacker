@@ -5,7 +5,7 @@ import robinpacker.script.parser.actions as actions
 string_value = dblQuotedString.copy()
 
 integer = Word(nums)
-hex_number = Suppress(Literal('0x')) + Word(nums + '[a-fA-F]', max=4)
+hex_number = Suppress(Literal('0x')) + Word(nums + srange('[a-fA-F]'), max=4)
 number = hex_number | integer
 
 immediate_arg = number
@@ -21,15 +21,16 @@ argument = (immediate_arg #|
 #    point_arg
 ) # TODO
 
-arguments = argument + ZeroOrMore(Suppress(Literal(',')) + argument)
+arguments = delimitedList(argument)
 
 function_call = Word(alphas, alphanums + '_')('function_name') + Suppress(Literal('(')) + Group(Optional(arguments))('arguments') + Suppress(Literal(')'))
 action_function = function_call.copy()
 conditional = Optional(Keyword('not'))('negated') + function_call
 
+multiple_conditionals = Group(conditional + ZeroOrMore(Suppress(Keyword('and')) + conditional))('conditionals')
+
 rule = (Suppress(Keyword('rule')) + string_value +
-        Suppress(Keyword('when')) + Group(conditional +
-            ZeroOrMore(Suppress(Keyword('and')) + conditional))('conditionals') +
+        Suppress(Keyword('when')) + multiple_conditionals +
         Suppress(Keyword('then')) + Group(OneOrMore(action_function))('actions') +
         Suppress(Keyword('end'))
 )

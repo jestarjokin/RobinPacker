@@ -95,7 +95,7 @@ class TreeToRulesScriptWriter(object):
         elif argument_node.arg_type == ast.ARG_TYPE_GET_VALUE_1:
             val = argument_node.value
             if val < 1000:
-                out_str = "0x{0:02X}".format(val)
+                out_str = "val(0x{0:02X})".format(val) # might need to change this, for easier parsing
             elif val > 1004:
                 out_str = "getValue1(0x{0:02X})".format(val)
             elif val == 1000:
@@ -139,7 +139,7 @@ class TreeToRulesScriptWriter(object):
             elif tmpVal == 0xF6:
                 out_str = "_savedMousePosDivided"
             else:
-                out_str = "(0x{0:02X},0x{0:02X})".format(curWord >> 8, curWord & 0xFF)
+                out_str = "(0x{0:02X}, 0x{0:02X})".format(curWord >> 8, curWord & 0xFF)
         elif argument_node.arg_type == ast.ARG_TYPE_COMPARE_OPERATION:
             comp = argument_node.value
             if comp != ord('<') and comp != ord('>'):
@@ -162,7 +162,8 @@ class TreeToRulesScriptWriter(object):
     def write_tree_to_file(self, tree, output_file):
         for rule in tree.rules:
             output_file.write("rule \"{}\"\n".format(rule.name))
-            output_file.write("  when\n")
+            if len(rule.conditions):
+                output_file.write("  when\n")
             for i, conditional_node in enumerate(rule.conditions):
                 output_file.write("    ")
                 if conditional_node.negated:
