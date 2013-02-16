@@ -61,12 +61,24 @@ def parse_point_arg(toks):
         '(_characterPositionTileX[_currentCharacterVariables[6]], _characterPositionTileY[_currentCharacterVariables[6]])' : 0xF700,
         '_savedMousePosDivided' : 0xF600,
     }
-    print len(toks)
-    print toks
     if len(toks) == 1:
         value = funky_values[toks[0]]
+    elif len(toks) == 4:
+        if toks[0] == '_vm->_rulesBuffer2_13' and toks[2] == '_vm->_rulesBuffer2_14':
+            assert toks[1] == toks[3] # TODO: real exception/validation
+            value = 0xFE00 | toks[1]
+        elif toks[0] == 'characterPositionTileX' and toks[2] == 'characterPositionTileY':
+            assert toks[1] == toks[3]
+            value = 0xFC00 | toks[1]
+        else:
+            raise RobinScriptError('Unrecognised point argument: {}',format(toks))
+    elif len(toks) == 2:
+        if toks[0] == '_vm->_rulesBuffer12Pos3':
+            value = 0xF800 | toks[1]
+        else:
+            value = ((toks[0] << 8) & 0xFF00) | (toks[1] & 0xFF)
     else:
-        value = None
+        raise RobinScriptError('Unrecognised point argument: {}'.format(toks))
     arg_node = ast.ArgumentNode()
     arg_node.arg_type = ast.ARG_TYPE_GET_POS_FROM_SCRIPT
     arg_node.value = value

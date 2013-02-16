@@ -108,11 +108,22 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(ord(input), arg_node.value)
 
     def testParsePointArg(self):
-        input = '(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])'
-        arg_node = grammar.point_arg.parseString(input)[0]
-        self.assertEqual(ast.ARG_TYPE_GET_POS_FROM_SCRIPT, arg_node.arg_type)
-        self.assertEqual(0xFF00, arg_node.value)
-        self.fail()
+        def compare(input, expected_value):
+            arg_node = grammar.point_arg.parseString(input)[0]
+            self.assertEqual(ast.ARG_TYPE_GET_POS_FROM_SCRIPT, arg_node.arg_type)
+            self.assertEqual(expected_value, arg_node.value)
+        compare('(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])', 0xFF00)
+        compare('_currentScriptCharacterPosition', 0xFD00)
+        compare('(characterPositionTileX[_word16F00_characterId], characterPositionTileY[_word16F00_characterId])', 0xFB00)
+        compare('(_array10999PosX[currentCharacter], _array109C1PosY[currentCharacter])', 0xFA00)
+        compare('(_currentCharacterVariables[4], _currentCharacterVariables[5])', 0xF900)
+        compare('(_characterPositionTileX[_currentCharacterVariables[6]], _characterPositionTileY[_currentCharacterVariables[6]])', 0xF700)
+        compare('_savedMousePosDivided', 0xF600)
+        compare('(_vm->_rulesBuffer2_13[0x21], _vm->_rulesBuffer2_14[0x21])', 0xFE21)
+        compare('(characterPositionTileX[0x43], characterPositionTileY[0x43])', 0xFC43)
+        compare('_vm->_rulesBuffer12Pos3[0x54]', 0xF854)
+        compare('(0x12, 0x34)', 0x1234)
+        compare('(56, 78)', 0x384E)
 
     def testParseActionFunctionWithImmediateHexArgument(self):
         result = grammar.action_function.parseString('OC_sub18213(0xA5)')
