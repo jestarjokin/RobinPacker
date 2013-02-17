@@ -1,3 +1,5 @@
+from pyparsing import ParseException
+
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -125,10 +127,24 @@ class GrammarTest(unittest.TestCase):
         compare('(_characterPositionTileX[_currentCharacterVariables[6]], _characterPositionTileY[_currentCharacterVariables[6]])', 0xF700)
         compare('_savedMousePosDivided', 0xF600)
         compare('(_vm->_rulesBuffer2_13[0x21], _vm->_rulesBuffer2_14[0x21])', 0xFE21)
-        compare('(characterPositionTileX[0x43], characterPositionTileY[0x43])', 0xFC43)
-        compare('_vm->_rulesBuffer12Pos3[0x54]', 0xF854)
+        compare('(characterPositionTileX[33], characterPositionTileY[0x21])', 0xFC21)
+        compare('_vm->_rulesBuffer12Pos3[0x20]', 0xF820)
         compare('(0x12, 0x34)', 0x1234)
         compare('(56, 78)', 0x384E)
+
+    def testParseInvalidPointArg(self):
+        self.assertRaises(RobinScriptError, grammar.point_arg.parseString,
+            '(characterPositionTileX[0x43], characterPositionTileY[0x53])'
+        )
+        self.assertRaises(RobinScriptError, grammar.point_arg.parseString,
+            '(56, 278)'
+        )
+        self.assertRaises(RobinScriptError, grammar.point_arg.parseString,
+            '(characterPositionTileX[33], characterPositionTileY[0x20])'
+        )
+        self.assertRaises(RobinScriptError, grammar.point_arg.parseString,
+            '_vm->_rulesBuffer12Pos3[0x54]'
+        )
 
     def testParseActionFunctionWithImmediateHexArgument(self):
         result = grammar.action_function.parseString('sub18213(0xA5)')
@@ -173,6 +189,12 @@ class GrammarTest(unittest.TestCase):
         self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'sub18213()')
         # Unknown function name
         self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'notAKnownFunction(0xA5)')
+        # Value is too large (normal)
+        self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'sub18213(65536)')
+        # Value is too large (hex)
+        self.assertRaises(ParseException, grammar.action_function.parseString, 'sub18213(0x10000)')
+        # Invalid argument type
+        self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'setCurrentCharacterVar6(0x1B)')
 
     def testParseConditionalWithImmediateHexArgument(self):
         result = grammar.conditional.parseString('compWord16EFE(0x27)')
@@ -254,7 +276,7 @@ class GrammarTest(unittest.TestCase):
                 IsCurrentCharacterVar0LessEqualThan(0x52) and
                 not sub17782(0x2B)
               then
-                setCurrentCharacterVar6(0x1B)
+                setCurrentCharacterVar6(val(0x1B))
                 enableCurrentCharacterScript(0x1E)
             end
         """

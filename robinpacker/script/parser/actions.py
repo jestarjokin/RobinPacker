@@ -7,10 +7,16 @@ def parse_string(toks):
     return toks[0][1:-1] # strip leading/trailing quote marks
 
 def parse_int(toks):
-    return int(toks[0])
+    val = int(toks[0])
+    if val > 0xFFFF:
+        raise RobinScriptError("Value {} exceeds maximum value of {}.".format(val, 0xFFFF))
+    return val
 
 def parse_hex(toks):
-    return int(toks[0], 16)
+    val = int(toks[0], 16)
+    if val > 0xFFFF:
+        raise RobinScriptError("Value {} exceeds maximum value of {}.".format(val, 0xFFFF))
+    return val
 
 def parse_immediate_arg(toks):
     arg_node = ast.ArgumentNode()
@@ -65,18 +71,37 @@ def parse_point_arg(toks):
     if len(toks) == 1:
         value = funky_values[toks[0]]
     elif len(toks) == 4:
+        if toks[1] > 40:
+            raise RobinScriptError("Value in point argument {} exceeds maxmimum value of {}".format(
+                (toks[0], toks[2]),
+                40
+            ))
+        elif toks[1] != toks[3]:
+            raise RobinScriptError("Point argument for {} must have the same value for both indexes. Was: {}, {}".format(
+                (toks[0], toks[2]),
+                toks[1],
+                toks[3]
+            ))
         if toks[0] == '_vm->_rulesBuffer2_13' and toks[2] == '_vm->_rulesBuffer2_14':
-            assert toks[1] == toks[3] # TODO: real exception/validation
             value = 0xFE00 | toks[1]
         elif toks[0] == 'characterPositionTileX' and toks[2] == 'characterPositionTileY':
-            assert toks[1] == toks[3]
             value = 0xFC00 | toks[1]
         else:
             raise RobinScriptError('Unrecognised point argument: {}',format(toks))
     elif len(toks) == 2:
         if toks[0] == '_vm->_rulesBuffer12Pos3':
+            if toks[1] > 40:
+                raise RobinScriptError("Value in point argument {} exceeds maxmimum value of {}".format(
+                    toks[0],
+                    40
+                ))
             value = 0xF800 | toks[1]
         else:
+            if toks[0] > 0xFF or toks[1] > 0xFF:
+                raise RobinScriptError("Value in point argument {} exceeds maxmimum value of {}".format(
+                    (toks[0], toks[1]),
+                    0xFF
+                ))
             value = ((toks[0] << 8) & 0xFF00) | (toks[1] & 0xFF)
     else:
         raise RobinScriptError('Unrecognised point argument: {}'.format(toks))
@@ -110,6 +135,21 @@ def __parse_function_call(function_name, args, is_conditional):
         raise RobinScriptError('Invalid number of arguments passed to function "{}". Expected {}, but was passed {}.'.format(
             function_name, len(opcode.arguments), len(args)
         ))
+    for argument_node, expected_arg_type in zip(args, opcode.arguments):
+        if argument_node.arg_type != expected_arg_type:
+            raise RobinScriptError(
+                "Invalid argument type for function call '{}'. Expected {}, found {}".format(
+                    function_name,
+                    argtypes.ARG_TYPE_LOOKUP[argument_node.arg_type],
+                    argtypes.ARG_TYPE_LOOKUP[expected_arg_type]
+                ))
+        if argument_node.value > 0xFFFF:
+            raise RobinScriptError(
+                "Argument for function call '{}' has a value of {}, which exceeds the maximum value of {}".format(
+                    function_name,
+                    argument_node.value,
+                    0xFFFF
+                ))
     function_node.opcode = opcode
     function_node.arguments = list(args)
     return function_node
