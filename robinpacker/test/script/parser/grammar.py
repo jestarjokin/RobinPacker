@@ -1,3 +1,7 @@
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
 import unittest
 
 import robinpacker.script.ast.elements as ast
@@ -83,34 +87,34 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(ord('='), arg_node.value)
 
     def testParseComputeArg(self):
-        input = '-'
-        arg_node = grammar.compute_arg.parseString(input)[0]
+        input_str = '-'
+        arg_node = grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
-        self.assertEqual(ord(input), arg_node.value)
-        input = '+'
-        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ord(input_str), arg_node.value)
+        input_str = '+'
+        arg_node = grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
-        self.assertEqual(ord(input), arg_node.value)
-        input = '*'
-        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ord(input_str), arg_node.value)
+        input_str = '*'
+        arg_node = grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
-        self.assertEqual(ord(input), arg_node.value)
-        input = '/'
-        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ord(input_str), arg_node.value)
+        input_str = '/'
+        arg_node = grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
-        self.assertEqual(ord(input), arg_node.value)
-        input = '%'
-        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ord(input_str), arg_node.value)
+        input_str = '%'
+        arg_node = grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
-        self.assertEqual(ord(input), arg_node.value)
-        input = '='
-        arg_node = grammar.compute_arg.parseString(input)[0]
+        self.assertEqual(ord(input_str), arg_node.value)
+        input_str = '='
+        arg_node = grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
-        self.assertEqual(ord(input), arg_node.value)
+        self.assertEqual(ord(input_str), arg_node.value)
 
     def testParsePointArg(self):
-        def compare(input, expected_value):
-            arg_node = grammar.point_arg.parseString(input)[0]
+        def compare(input_str, expected_value):
+            arg_node = grammar.point_arg.parseString(input_str)[0]
             self.assertEqual(argtypes.GET_POS_FROM_SCRIPT, arg_node.arg_type)
             self.assertEqual(expected_value, arg_node.value)
         compare('(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])', 0xFF00)
@@ -202,7 +206,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(ast.ConditionalNode, type(conditionals[1]))
 
     def testParseRule(self):
-        input = """
+        input_str = """
             rule "erulesout_gameScript_22-rule-06"
               when
                 CurrentCharacterVar0Equals(0x01)
@@ -210,7 +214,7 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x00)
             end
         """
-        result = grammar.rule.parseString(input)
+        result = grammar.rule.parseString(input_str)
         rule_node = result[0]
         self.assertEqual('erulesout_gameScript_22-rule-06', rule_node.name)
         self.assertEqual(1, len(rule_node.conditions))
@@ -221,7 +225,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual('enableCurrentCharacterScript', action_node.opcode.name)
 
     def testParseRuleWithMultipleConditionals(self):
-        input = """
+        input_str = """
             rule "erulesout_gameScript_22-rule-06"
               when
                 CurrentCharacterVar0Equals(0x01) and
@@ -230,7 +234,7 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x00)
             end
         """
-        result = grammar.rule.parseString(input)
+        result = grammar.rule.parseString(input_str)
         rule_node = result[0]
         self.assertEqual('erulesout_gameScript_22-rule-06', rule_node.name)
         self.assertEqual(2, len(rule_node.conditions))
@@ -243,7 +247,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual('enableCurrentCharacterScript', action_node.opcode.name)
 
     def testParseRuleWithMultipleConditionalsAndMultipleActions(self):
-        input = """
+        input_str = """
             rule "erules_out_gameScript_8-rule-13"
               when
                 compWord16EFE(0x6C) and
@@ -254,7 +258,7 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x1E)
             end
         """
-        result = grammar.rule.parseString(input)
+        result = grammar.rule.parseString(input_str)
         rule_node = result[0]
         self.assertEqual('erules_out_gameScript_8-rule-13', rule_node.name)
         self.assertEqual(3, len(rule_node.conditions))
@@ -267,13 +271,13 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual('enableCurrentCharacterScript', rule_node.actions[1].opcode.name)
 
     def testParseRuleWithNoConditionals(self):
-        input = """
+        input_str = """
             rule "erules_out_gameScript_8-rule-26"
               always
                 callScript(0x01, characterIndex)
             end
         """
-        result = grammar.rule.parseString(input)
+        result = grammar.rule.parseString(input_str)
         self.assertEqual(1, len(result))
         rule_node = result[0]
         self.assertEqual(0, len(rule_node.conditions))
@@ -281,7 +285,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual('callScript', rule_node.actions[0].opcode.name)
 
     def testParseMultipleRules(self):
-        input = """
+        input_str = """
             rule "erulesout_gameScript_22-rule-06"
               when
                 CurrentCharacterVar0Equals(0x01) and
@@ -298,8 +302,118 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x01)
             end
         """
-        result = grammar.root.parseString(input)
+        result = grammar.root.parseString(input_str)
         root_node = result[0]
         self.assertEqual(2, len(root_node.rules))
         self.assertEqual(ast.RuleNode, type(root_node.rules[0]))
         self.assertEqual(ast.RuleNode, type(root_node.rules[1]))
+
+    def testParseMegaScript(self):
+        script = MegaScriptCreator().create_script()
+        #print script
+        grammar.root.parseString(script) # Just check that parsing doesn't throw an exception
+
+
+class MegaScriptCreator(object):
+    def __init__(self):
+        self.conditional_i = 0
+        self.action_i = 0
+        self.immediate_arg_i = 0
+        self.get_value_arg_i = 0
+        self.compute_operation_i = 0
+        self.compare_operation_i = 0
+        self.point_arg_i = 0
+        self.negated = False
+
+    def _getArgumentString(self, arg_type):
+        out_str = None
+        if arg_type == argtypes.IMMEDIATE_VALUE:
+            if self.immediate_arg_i % 2:
+                out_str = "0x{0:02X}".format(self.immediate_arg_i % 0xFFFF)
+            else:
+                out_str = "{}".format(self.immediate_arg_i)
+            self.immediate_arg_i += 1
+        elif arg_type == argtypes.GET_VALUE_1:
+            variation = self.get_value_arg_i % 7
+            value = self.get_value_arg_i % 0xFFFF
+            if variation == 0:
+                out_str = "val(0x{0:02X})".format(value)
+            elif variation == 1:
+                out_str = "getValue1(0x{0:02X})".format(value)
+            elif variation == 2:
+                out_str = "_selectedCharacterId"
+            elif variation == 3:
+                out_str = "characterIndex"
+            elif variation == 4:
+                out_str = "_word16F00_characterId"
+            elif variation == 5:
+                out_str = "_currentCharacterVariables[6]"
+            elif variation == 6:
+                out_str = "_word10804"
+            self.get_value_arg_i += 1
+        elif arg_type == argtypes.GET_POS_FROM_SCRIPT:
+            variation = self.point_arg_i % 11
+            value = self.point_arg_i % 0xFFFF
+            if variation == 0:
+                out_str = "(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])"
+            elif variation == 1:
+                value %= 40
+                out_str = "(_vm->_rulesBuffer2_13[{0}], _vm->_rulesBuffer2_14[{0}])".format(value)
+            elif variation == 2:
+                out_str = "_currentScriptCharacterPosition"
+            elif variation == 3:
+                value %= 40
+                out_str = "(characterPositionTileX[{0}], characterPositionTileY[{0}])".format(value)
+            elif variation == 4:
+                out_str = "(characterPositionTileX[_word16F00_characterId], characterPositionTileY[_word16F00_characterId])"
+            elif variation == 5:
+                out_str = "(_array10999PosX[currentCharacter], _array109C1PosY[currentCharacter])"
+            elif variation == 6:
+                out_str = "(_currentCharacterVariables[4], _currentCharacterVariables[5])"
+            elif variation == 7:
+                value %= 40
+                out_str = "_vm->_rulesBuffer12Pos3[{0}]".format(value)
+            elif variation == 8:
+                out_str = "(_characterPositionTileX[_currentCharacterVariables[6]], _characterPositionTileY[_currentCharacterVariables[6]])"
+            elif variation == 9:
+                out_str = "_savedMousePosDivided"
+            elif variation == 10:
+                value %= 0xFE
+                out_str = "(0x{0:02X}, 0x{0:02X})".format(value, value + 1)
+            self.point_arg_i += 1
+        elif arg_type == argtypes.COMPARE_OPERATION:
+            values = ['<', '>', '==']
+            out_str = values[self.compare_operation_i % len(values)]
+            self.compare_operation_i += 1
+        elif arg_type == argtypes.COMPUTE_OPERATION:
+            values = ['-', '+', '*', '/', '%', '=']
+            out_str = values[self.compute_operation_i % len(values)]
+            self.compute_operation_i += 1
+        return out_str
+
+    def _write_function_call(self, opcode, output):
+        output.write(opcode.name)
+        output.write("(")
+        for i, arg_type in enumerate(opcode.arguments):
+            output.write(self._getArgumentString(arg_type))
+            if i < len(opcode.arguments) - 1:
+                output.write(", ")
+        output.write(")")
+
+    def create_script(self):
+        output = StringIO.StringIO()
+        output.write('rule "Mega Script"\n')
+        output.write('  when\n')
+        for opcode in opcodes.conditionalOpcodes:
+            output.write('    ')
+            self._write_function_call(opcode, output)
+            if opcode != opcodes.conditionalOpcodes[-1]:
+                output.write(" and")
+            output.write("\n")
+        output.write('  then\n')
+        for opcode in opcodes.actionOpcodes:
+            output.write('    ')
+            self._write_function_call(opcode, output)
+            output.write("\n")
+        output.write('end\n')
+        return output.getvalue()
