@@ -14,25 +14,14 @@ def unpack(rfile, format):
 
 
 class BytecodeToTreeConverter(object):
-    ARG_TYPE_MAP = (
-        None,
-        ast.ARG_TYPE_IMMEDIATE_VALUE,
-        ast.ARG_TYPE_COMPARE_OPERATION,
-        ast.ARG_TYPE_COMPUTE_OPERATION,
-        ast.ARG_TYPE_GET_VALUE_1,
-        ast.ARG_TYPE_GET_POS_FROM_SCRIPT
-    )
-
     def __init__(self):
         pass
 
-    def _parse_function_call(self, opCode, script):
+    def _parse_function_call(self, opcode, script):
         function_node = ast.FunctionNode()
-        function_node.opcode = opCode
-        for i in xrange(2, 2 + opCode.numArgs):
-            opArgType = opCode[min(i, 2 + 4)] # only 5 arg types allowed
+        function_node.opcode = opcode
+        for arg_type in opcode.arguments:
             value = unpack(script, '<H')
-            arg_type = self.ARG_TYPE_MAP[opArgType]
             argument_node = ast.ArgumentNode()
             argument_node.value = value
             argument_node.arg_type = arg_type
@@ -62,10 +51,10 @@ class BytecodeToTreeConverter(object):
                     conditional_node.negated = True
 
                 # op code type 1
-                assert val < len(conditionalOpCodes)
-                opCode = conditionalOpCodes[val]
+                assert val < len(conditionalOpcodes)
+                opcode = conditionalOpcodes[val]
 
-                function_node = self._parse_function_call(opCode, script)
+                function_node = self._parse_function_call(opcode, script)
                 conditional_node.function = function_node
                 rule_node.conditions.append(conditional_node)
                 val = unpack(script, '<H')
@@ -73,9 +62,9 @@ class BytecodeToTreeConverter(object):
             val = unpack(script, '<H')
             while val != 0xFFF7:
                 # op code type 2
-                assert val < len(actionOpCodes)
-                opCode = actionOpCodes[val]
-                function_node = self._parse_function_call(opCode, script)
+                assert val < len(actionOpcodes)
+                opcode = actionOpcodes[val]
+                function_node = self._parse_function_call(opcode, script)
                 rule_node.actions.append(function_node)
                 val = unpack(script, '<H')
 
@@ -90,9 +79,9 @@ class TreeToRulesScriptWriter(object):
 
     def _getArgumentString(self, argument_node):
         out_str = ""
-        if argument_node.arg_type == ast.ARG_TYPE_IMMEDIATE_VALUE:
+        if argument_node.arg_type == argtypes.IMMEDIATE_VALUE:
             out_str = "0x{0:02X}".format(argument_node.value)
-        elif argument_node.arg_type == ast.ARG_TYPE_GET_VALUE_1:
+        elif argument_node.arg_type == argtypes.GET_VALUE_1:
             val = argument_node.value
             if val < 1000:
                 out_str = "val(0x{0:02X})".format(val) # might need to change this, for easier parsing
@@ -108,7 +97,7 @@ class TreeToRulesScriptWriter(object):
                 out_str = "_currentCharacterVariables[6]"
             elif val == 1004:
                 out_str = "_word10804"
-        elif argument_node.arg_type == ast.ARG_TYPE_GET_POS_FROM_SCRIPT:
+        elif argument_node.arg_type == argtypes.GET_POS_FROM_SCRIPT:
             curWord = argument_node.value
             tmpVal = curWord >> 8
             # switch statement
@@ -140,19 +129,19 @@ class TreeToRulesScriptWriter(object):
                 out_str = "_savedMousePosDivided"
             else:
                 out_str = "(0x{0:02X}, 0x{0:02X})".format(curWord >> 8, curWord & 0xFF)
-        elif argument_node.arg_type == ast.ARG_TYPE_COMPARE_OPERATION:
+        elif argument_node.arg_type == argtypes.COMPARE_OPERATION:
             comp = argument_node.value
             if comp != ord('<') and comp != ord('>'):
                 out_str = '=='
             else:
                 out_str = "{0:c}".format(comp)
-        elif argument_node.arg_type == ast.ARG_TYPE_COMPUTE_OPERATION:
+        elif argument_node.arg_type == argtypes.COMPUTE_OPERATION:
             comp = argument_node.value
             out_str = "{0:c}".format(comp)
         return out_str
 
     def _convert_function_call(self, function_node, output_file):
-        output_file.write(function_node.opcode.opName)
+        output_file.write(function_node.opcode.name)
         output_file.write("(")
         for i, argument_node in enumerate(function_node.arguments):
             output_file.write(self._getArgumentString(argument_node))

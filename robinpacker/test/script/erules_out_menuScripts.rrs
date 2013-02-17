@@ -1,0 +1,932 @@
+rule "testMenuScripts-rule-01"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x12) and
+    compareCharacterVariable(val(0x03), 0x00, ==, 0x01)
+  then
+    setCurrentCharacter(val(0x05))
+    changeCurrentCharacterSprite(0x64, 0x0A)
+    ComputeCharacterVariable(characterIndex, 0x0A, =, 0x00)
+    setCharacterPosition(characterIndex, (_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter]))
+    enableCharacterScript(characterIndex, 0x2B)
+    setCurrentCharacter(val(0x06))
+    changeCurrentCharacterSprite(0x50, 0x0A)
+    ComputeCharacterVariable(characterIndex, 0x0A, =, 0x00)
+    DisableCharacter(characterIndex)
+    enableCharacterScript(characterIndex, 0x04)
+    setCurrentCharacter(val(0x09))
+    setCharacterPosition(val(0x09), _vm->_rulesBuffer12Pos3[17])
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x08))
+    setCharacterPosition(val(0x08), _vm->_rulesBuffer12Pos3[17])
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x1C))
+    setCharacterPosition(characterIndex, (0x37, 0x37))
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x0B))
+    setCharacterPosition(characterIndex, _vm->_rulesBuffer12Pos3[18])
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x0C))
+    setCharacterPosition(characterIndex, _vm->_rulesBuffer12Pos3[18])
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x0D))
+    setCharacterPosition(characterIndex, _vm->_rulesBuffer12Pos3[18])
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x0E))
+    setCharacterPosition(characterIndex, _vm->_rulesBuffer12Pos3[18])
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x0F))
+    setCharacterPosition(characterIndex, _vm->_rulesBuffer12Pos3[18])
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x03))
+    setCharacterPosition(characterIndex, (0x0D, 0x0D))
+    enableCharacterScript(characterIndex, 0x69)
+    CharacterVariableAddOrRemoveFlag(characterIndex, 0x0B, 0x40, 0x00)
+    enableCharacterScript(val(0x14), 0xFF)
+    enableCharacterScript(val(0x15), 0xFF)
+    enableCharacterScript(val(0x16), 0xFF)
+    enableCharacterScript(val(0x17), 0xFF)
+    enableCharacterScript(val(0x10), 0xFF)
+    enableCharacterScript(val(0x11), 0xFF)
+    enableCharacterScript(val(0x12), 0xFF)
+    enableCharacterScript(val(0x13), 0xFF)
+    enableCharacterScript(val(0x0A), 0xFF)
+    setCurrentCharacter(val(0x18))
+    setCharacterPosition(characterIndex, (0x3F, 0x3F))
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x19))
+    setCharacterPosition(characterIndex, (0x3F, 0x3F))
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x1A))
+    setCharacterPosition(characterIndex, (0x3F, 0x3F))
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x1B))
+    setCharacterPosition(characterIndex, (0x3F, 0x3F))
+    enableCharacterScript(characterIndex, 0xFF)
+    setCurrentCharacter(val(0x04))
+    setCharacterPosition(characterIndex, (0x3F, 0x3F))
+    enableCharacterScript(characterIndex, 0xFF)
+    setInterfaceHotspot(0x0F, 0x02)
+    setInterfaceHotspot(0x10, 0x02)
+    setInterfaceHotspot(0x11, 0x02)
+    setInterfaceHotspot(0x0E, 0x02)
+    setInterfaceHotspot(0x00, 0x02)
+    setInterfaceHotspot(0x01, 0x02)
+    setInterfaceHotspot(0x04, 0x02)
+    setInterfaceHotspot(0x02, 0x02)
+    setInterfaceHotspot(0x03, 0x02)
+    setInterfaceHotspot(0x05, 0x02)
+    setInterfaceHotspot(0x06, 0x02)
+    ComputeCharacterVariable(val(0x01), 0x14, =, 0x32)
+    sub1870A_snd((0x01, 0x01), 0x21)
+end
+
+rule "testMenuScripts-rule-02"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x12)
+  then
+    displayVGAFile(0x162)
+    displayCharacterStatBar(val(0x03), 0x0E, 0x2B, 0xFF, 0x7C, 0x48)
+    displayCharacterStatBar(val(0x03), 0x15, 0x2B, 0x28, 0x7C, 0x5F)
+    displayCharacterStatBar(val(0x03), 0x0D, 0x2B, 0xC8, 0x7C, 0x76)
+    displayCharacterStatBar(val(0x03), 0x14, 0x2D, 0xFF, 0x7C, 0x8D)
+    displayCharacterStatBar(val(0x03), 0x10, 0x2D, 0xFF, 0x7C, 0xA4)
+    displayCharacterStatBar(val(0x01), 0x14, 0x2D, 0xFF, 0x7C, 0xBB)
+    sub1875D_snd()
+    displayTitleScreen(0x00)
+    callScriptAndReturn(0xA2, characterIndex)
+end
+
+rule "testMenuScripts-rule-03"
+  when
+    compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x05) and
+    not CompareGameVariables(_selectedCharacterId, val(0x03)) and
+    not checkLastInterfaceHotspotIndexMenu13(0x0B)
+  then
+    displayVGAFile(0x4F)
+    startSpeechWithoutSpeeker(0x163)
+    displayTitleScreen(0x3C)
+    initGameAreaDisplay()
+end
+
+rule "testMenuScripts-rule-04"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x05) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x58) and
+    compareCharacterVariable(_selectedCharacterId, 0x01, ==, 0x04)
+  then
+    startSpeech(0x164)
+end
+
+rule "testMenuScripts-rule-05"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x06) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x58) and
+    compareCharacterVariable(_selectedCharacterId, 0x01, ==, 0x04)
+  then
+    startSpeech(0x164)
+end
+
+rule "testMenuScripts-rule-06"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x01) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x58) and
+    compareCharacterVariable(_selectedCharacterId, 0x01, ==, 0x04)
+  then
+    startSpeech(0x164)
+end
+
+rule "testMenuScripts-rule-07"
+  when
+    checkDelayedReactivation() and
+    CompareGameVariables(_selectedCharacterId, val(0x05)) and
+    CurrentCharacterVar0Equals(0x2C)
+  then
+    startSpeech(0x165)
+    enableCurrentCharacterScript(0x0A)
+end
+
+rule "testMenuScripts-rule-08"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x04) and
+    CompareGameVariables(_selectedCharacterId, val(0x05)) and
+    CurrentCharacterVar0Equals(0x2C)
+  then
+    startSpeech(0x6C)
+    disableInterfaceHotspot(0x04, 0x1E)
+    ComputeCharacterVariable(val(0x01), 0x14, -, 0x1E)
+    enableCurrentCharacterScript(0x67)
+end
+
+rule "testMenuScripts-rule-09"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x01) and
+    CompareGameVariables(_selectedCharacterId, val(0x05)) and
+    not CurrentCharacterVar0Equals(0x2C) and
+    not CurrentCharacterVar0Equals(0x0B) and
+    not CurrentCharacterVar0Equals(0x0A) and
+    compareCharacterVariable(val(0x05), 0x00, ==, 0x2B)
+  then
+    disableInterfaceHotspot(0x01, 0x0A)
+    startSpeech(0x166)
+    setCurrentCharacterVar6(val(0x05))
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-10"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x01) and
+    CompareGameVariables(_selectedCharacterId, val(0x05)) and
+    CurrentCharacterVar0Equals(0x2C)
+  then
+    disableInterfaceHotspot(0x01, 0x32)
+    startSpeech(0x165)
+    enableCurrentCharacterScript(0x0A)
+end
+
+rule "testMenuScripts-rule-11"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x05) and
+    CompareGameVariables(_selectedCharacterId, val(0x05)) and
+    CurrentCharacterVar0Equals(0x2C)
+  then
+    disableInterfaceHotspot(0x05, 0x32)
+    startSpeech(0x167)
+    sub17FDD(0x17)
+    sub17CB9(0x0C, val(0x05), 0x5D)
+    setCurrentCharacterVar2(0x1E)
+    ComputeCharacterVariable(val(0x01), 0x14, -, 0x1E)
+end
+
+rule "testMenuScripts-rule-12"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x04) and
+    CurrentCharacterVar0Equals(0x09)
+  then
+    disableInterfaceHotspot(0x04, 0x1E)
+    getComputedVariantSpeech(characterIndex, 0x14, 0x80, 0x168)
+end
+
+rule "testMenuScripts-rule-13"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0A) and
+    CurrentCharacterVar0Equals(0x09)
+  then
+    disableInterfaceHotspot(0x0A, 0x28)
+    sub17AE1(0x17)
+    sub17CB9(0x01, val(0x05), 0x44)
+    sub17CB9(0x01, val(0x06), 0x44)
+    sub17CB9(0x01, val(0x04), 0x44)
+    startSpeechIfSoundOff(0x90)
+    sub186E5_snd(characterIndex, 0x1C)
+end
+
+rule "testMenuScripts-rule-14"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x01) and
+    CurrentCharacterVar0Equals(0x09) and
+    sub174D8(_selectedCharacterId, val(0x03))
+  then
+    disableInterfaceHotspot(0x01, 0x32)
+    startSpeechIfMute(0x169)
+    sub17C76(val(0x03))
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x3A)
+end
+
+rule "testMenuScripts-rule-15"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0C)
+  then
+    disableInterfaceHotspot(0x0C, 0x12)
+    sub186E5_snd(characterIndex, 0x26)
+    setInterfaceHotspot(0x0F, 0x03)
+    setInterfaceHotspot(0x10, 0x03)
+    setInterfaceHotspot(0x11, 0x03)
+    setInterfaceHotspot(0x0E, 0x03)
+end
+
+rule "testMenuScripts-rule-16"
+  when
+    checkLastInterfaceHotspotIndex(0x0C, 0x02) and
+    not checkViewPortCharacterTarget(val(0x03))
+  then
+    setViewPortCharacterTarget(val(0x03))
+end
+
+rule "testMenuScripts-rule-17"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0F) and
+    checkLastInterfaceHotspotIndex(0x0C, 0x01)
+  then
+    scrollViewPort(0x01)
+end
+
+rule "testMenuScripts-rule-18"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x10) and
+    checkLastInterfaceHotspotIndex(0x0C, 0x01)
+  then
+    scrollViewPort(0x02)
+end
+
+rule "testMenuScripts-rule-19"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x11) and
+    checkLastInterfaceHotspotIndex(0x0C, 0x01)
+  then
+    scrollViewPort(0x00)
+end
+
+rule "testMenuScripts-rule-20"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0E) and
+    checkLastInterfaceHotspotIndex(0x0C, 0x01)
+  then
+    scrollViewPort(0x03)
+end
+
+rule "testMenuScripts-rule-21"
+  when
+    checkLastInterfaceHotspotIndex(0x0C, 0x01)
+  then
+    sub17B93(0x00)
+end
+
+rule "testMenuScripts-rule-22"
+  when
+    checkDelayedReactivation() and
+    CurrentCharacterVar0Equals(0x3A) and
+    CompareGameVariables(_currentCharacterVariables[6], _selectedCharacterId)
+  then
+    sub17B93(0x00)
+end
+
+rule "testMenuScripts-rule-23"
+  when
+    checkDelayedReactivation() and
+    CurrentCharacterVar0Equals(0x27) and
+    CompareGameVariables(_currentCharacterVariables[6], _selectedCharacterId)
+  then
+    sub17B93(0x00)
+end
+
+rule "testMenuScripts-rule-24"
+  when
+    checkDelayedReactivation() and
+    IsCurrentCharacterVar0LessEqualThan(0x1E) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x02) and
+    not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
+  then
+    startSpeech(0x16A)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-25"
+  when
+    checkDelayedReactivation() and
+    IsCurrentCharacterVar0LessEqualThan(0x1E) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x03) and
+    not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
+  then
+    startSpeech(0x16B)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-26"
+  when
+    checkDelayedReactivation() and
+    IsCurrentCharacterVar0LessEqualThan(0x1E) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x01) and
+    not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
+  then
+    startSpeech(0x16C)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-27"
+  when
+    checkDelayedReactivation() and
+    CurrentCharacterVar0Equals(0x1D) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x02) and
+    not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
+  then
+    startSpeech(0x16A)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-28"
+  when
+    checkDelayedReactivation() and
+    CurrentCharacterVar0Equals(0x1D) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x03) and
+    not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
+  then
+    startSpeech(0x16B)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-29"
+  when
+    checkDelayedReactivation() and
+    CurrentCharacterVar0Equals(0x1D) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x01) and
+    not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
+  then
+    startSpeech(0x16D)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-30"
+  when
+    checkSelectedCharacter() and
+    IsCurrentCharacterVar0LessEqualThan(0x1D)
+  then
+    setCurrentScriptCharacterPos(_savedMousePosDivided)
+    setCharacterPosition(val(0x00), _savedMousePosDivided)
+    enableCurrentCharacterScript(0x1D)
+end
+
+rule "testMenuScripts-rule-31"
+  when
+    checkDelayedReactivation() and
+    CompareGameVariables(_selectedCharacterId, val(0x24)) and
+    IsCurrentCharacterVar0LessEqualThan(0x1D)
+  then
+    setCurrentScriptCharacterPos((characterPositionTileX[36], characterPositionTileY[36]))
+    setCharacterPosition(val(0x00), (characterPositionTileX[36], characterPositionTileY[36]))
+    enableCurrentCharacterScript(0x1D)
+end
+
+rule "testMenuScripts-rule-32"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0F) and
+    IsCurrentCharacterVar0LessEqualThan(0x1C)
+  then
+    setCurrentCharacterDirection(0x01)
+    enableCurrentCharacterScript(0x1C)
+end
+
+rule "testMenuScripts-rule-33"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x10) and
+    IsCurrentCharacterVar0LessEqualThan(0x1C)
+  then
+    setCurrentCharacterDirection(0x02)
+    enableCurrentCharacterScript(0x1C)
+end
+
+rule "testMenuScripts-rule-34"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x11) and
+    IsCurrentCharacterVar0LessEqualThan(0x1C)
+  then
+    setCurrentCharacterDirection(0x00)
+    enableCurrentCharacterScript(0x1C)
+end
+
+rule "testMenuScripts-rule-35"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0E) and
+    IsCurrentCharacterVar0LessEqualThan(0x1C)
+  then
+    setCurrentCharacterDirection(0x03)
+    enableCurrentCharacterScript(0x1C)
+end
+
+rule "testMenuScripts-rule-36"
+  when
+    checkLastInterfaceHotspotIndexMenu2(0x0F) and
+    CurrentCharacterVar0Equals(0x1C)
+  then
+    enableCurrentCharacterScript(0x26)
+end
+
+rule "testMenuScripts-rule-37"
+  when
+    checkLastInterfaceHotspotIndexMenu2(0x10) and
+    CurrentCharacterVar0Equals(0x1C)
+  then
+    enableCurrentCharacterScript(0x26)
+end
+
+rule "testMenuScripts-rule-38"
+  when
+    checkLastInterfaceHotspotIndexMenu2(0x11) and
+    CurrentCharacterVar0Equals(0x1C)
+  then
+    enableCurrentCharacterScript(0x26)
+end
+
+rule "testMenuScripts-rule-39"
+  when
+    checkLastInterfaceHotspotIndexMenu2(0x0E) and
+    CurrentCharacterVar0Equals(0x1C)
+  then
+    enableCurrentCharacterScript(0x26)
+end
+
+rule "testMenuScripts-rule-40"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0A) and
+    IsCurrentCharacterVar0LessEqualThan(0x12)
+  then
+    disableInterfaceHotspot(0x0A, 0x28)
+    enableCurrentCharacterScript(0x12)
+end
+
+rule "testMenuScripts-rule-41"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x06) and
+    CompareGameVariables(_selectedCharacterId, val(0x26)) and
+    IsCurrentCharacterVar0LessEqualThan(0x1A) and
+    not checkLastInterfaceHotspotIndex(0x0B, 0x02)
+  then
+    enableCurrentCharacterScript(0x1A)
+end
+
+rule "testMenuScripts-rule-42"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x06) and
+    CompareGameVariables(_selectedCharacterId, val(0x24)) and
+    IsCurrentCharacterVar0LessEqualThan(0x1D)
+  then
+    setCurrentScriptCharacterPos((characterPositionTileX[36], characterPositionTileY[36]))
+    setCharacterPosition(val(0x00), (characterPositionTileX[36], characterPositionTileY[36]))
+    enableCurrentCharacterScript(0x1D)
+end
+
+rule "testMenuScripts-rule-43"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x06) and
+    CharacterVariableAnd(_selectedCharacterId, 0x0B, 0x01) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, >, 0x06) and
+    IsCurrentCharacterVar0LessEqualThan(0x13)
+  then
+    setCurrentCharacterVar6(_selectedCharacterId)
+    turnCharacterTowardsAnother(_currentCharacterVariables[6])
+    sub17FDD(0x13)
+    getRotatingVariantSpeech(0x16E, 0x00)
+    sub17CB9(0x0C, _currentCharacterVariables[6], 0x77)
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-44"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x01) and
+    CharacterVariableAnd(_selectedCharacterId, 0x0B, 0x01) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, >, 0x06) and
+    IsCurrentCharacterVar0LessEqualThan(0x13)
+  then
+    setCurrentCharacterVar6(_selectedCharacterId)
+    turnCharacterTowardsAnother(_currentCharacterVariables[6])
+    sub17FDD(0x13)
+    getRotatingVariantSpeech(0x16F, 0x00)
+    sub17CB9(0x0C, _currentCharacterVariables[6], 0x78)
+    enableCurrentCharacterScript(0x1E)
+end
+
+rule "testMenuScripts-rule-45"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x05) and
+    CharacterVariableAnd(_selectedCharacterId, 0x0B, 0x01) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, >, 0x06) and
+    IsCurrentCharacterVar0LessEqualThan(0x14)
+  then
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x35)
+end
+
+rule "testMenuScripts-rule-46"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x06) and
+    IsCurrentCharacterVar0LessEqualThan(0x13) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, >, 0x00)
+  then
+    disableInterfaceHotspot(0x06, 0x32)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x13)
+end
+
+rule "testMenuScripts-rule-47"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0D)
+  then
+    disableInterfaceHotspot(0x0D, 0x28)
+    sub186E5_snd(characterIndex, 0x26)
+    loadFileAerial()
+end
+
+rule "testMenuScripts-rule-48"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x02)
+  then
+    scrollAwayFromCharacter()
+end
+
+rule "testMenuScripts-rule-49"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x03) and
+    CurrentCharacterVar0Equals(0x1D)
+  then
+    sub17AE1(0x4E)
+    sub17BA5(val(0x01), 0x0F, =, characterIndex, 0x0E)
+    ComputeCharacterVariable(val(0x01), 0x0F, /, 0x32)
+    ComputeCharacterVariable(val(0x01), 0x0F, +, 0x01)
+    ComputeCharacterVariable(characterIndex, 0x0E, -, 0x28)
+    disableInterfaceHotspot(0x03, 0x50)
+end
+
+rule "testMenuScripts-rule-50"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x03)
+  then
+    sub17BA5(val(0x01), 0x0F, =, characterIndex, 0x0E)
+    ComputeCharacterVariable(val(0x01), 0x0F, /, 0x32)
+    ComputeCharacterVariable(val(0x01), 0x0F, +, 0x01)
+    ComputeCharacterVariable(characterIndex, 0x0E, -, 0x28)
+    disableInterfaceHotspot(0x03, 0x50)
+end
+
+rule "testMenuScripts-rule-51"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x00) and
+    compareCoords_1(0x1E) and
+    sub1796E(characterIndex, 0x03) and
+    not sub175C8(0x03, getValue1(0xBB8)) and
+    IsCurrentCharacterVar0LessEqualThan(0x10)
+  then
+    disableInterfaceHotspot(0x00, 0x14)
+    enableCurrentCharacterScript(0x5A)
+end
+
+rule "testMenuScripts-rule-52"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x00) and
+    IsCurrentCharacterVar0LessEqualThan(0x10) and
+    compareCharacterVariable(characterIndex, 0x1F, ==, 0x00)
+  then
+    disableInterfaceHotspot(0x00, 0x28)
+    enableCurrentCharacterScript(0x25)
+end
+
+rule "testMenuScripts-rule-53"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x00) and
+    IsCurrentCharacterVar0LessEqualThan(0x10) and
+    compareCharacterVariable(characterIndex, 0x1F, ==, 0x01)
+  then
+    disableInterfaceHotspot(0x00, 0x19)
+    enableCurrentCharacterScript(0x25)
+end
+
+rule "testMenuScripts-rule-54"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x00) and
+    IsCurrentCharacterVar0LessEqualThan(0x10) and
+    compareCharacterVariable(characterIndex, 0x1F, ==, 0x02)
+  then
+    disableInterfaceHotspot(0x00, 0x0F)
+    enableCurrentCharacterScript(0x25)
+end
+
+rule "testMenuScripts-rule-55"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x00) and
+    IsCurrentCharacterVar0LessEqualThan(0x10)
+  then
+    disableInterfaceHotspot(0x00, 0x08)
+    enableCurrentCharacterScript(0x25)
+end
+
+rule "testMenuScripts-rule-56"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x08)
+  then
+    sub17CB9(0x05, _selectedCharacterId, 0x34)
+    disableInterfaceHotspot(0x08, 0x19)
+    resetByte1714E()
+end
+
+rule "testMenuScripts-rule-57"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x08) and
+    not CurrentCharacterVar0Equals(0x09)
+  then
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x11)
+end
+
+rule "testMenuScripts-rule-58"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x04) and
+    IsCurrentCharacterVar0LessEqualThan(0x16)
+  then
+    disableInterfaceHotspot(0x04, 0x1E)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x16)
+end
+
+rule "testMenuScripts-rule-59"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x07) and
+    IsCurrentCharacterVar0LessEqualThan(0x19) and
+    compareCharacterVariable(val(0x03), 0x17, ==, 0x00)
+  then
+    enableCurrentCharacterScript(0x19)
+end
+
+rule "testMenuScripts-rule-60"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x07) and
+    IsCurrentCharacterVar0LessEqualThan(0x18) and
+    compareCharacterVariable(val(0x03), 0x17, ==, 0x01)
+  then
+    enableCurrentCharacterScript(0x18)
+end
+
+rule "testMenuScripts-rule-61"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x05) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, >, 0x01) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, >, 0x06) and
+    IsCurrentCharacterVar0LessEqualThan(0x14)
+  then
+    disableInterfaceHotspot(0x05, 0x28)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x14)
+end
+
+rule "testMenuScripts-rule-62"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x05) and
+    sub178D2(_selectedCharacterId, 0x0E) and
+    CurrentCharacterVar0Equals(0x09) and
+    sub174D8(_selectedCharacterId, characterIndex)
+  then
+    disableInterfaceHotspot(0x05, 0x28)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x15)
+end
+
+rule "testMenuScripts-rule-63"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x0B) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, >, 0x01) and
+    not compareCharacterVariable(_selectedCharacterId, 0x00, >, 0x06) and
+    IsCurrentCharacterVar0LessEqualThan(0x0F)
+  then
+    setInterfaceHotspot(0x0B, 0x01)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    enableCurrentCharacterScript(0x0F)
+end
+
+rule "testMenuScripts-rule-64"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x09) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, >, 0x01) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, >, 0x06)
+  then
+    disableInterfaceHotspot(0x09, 0x1E)
+    sub186E5_snd(characterIndex, 0x26)
+    displayVGAFile(0x170)
+    displayCharacterStatBar(_selectedCharacterId, 0x0E, 0x2B, 0xFF, 0x7C, 0x03)
+    displayCharacterStatBar(_selectedCharacterId, 0x15, 0x2B, 0x28, 0x7C, 0x1A)
+    displayCharacterStatBar(_selectedCharacterId, 0x0F, 0x2B, 0xFF, 0x7C, 0x31)
+    displayCharacterStatBar(_selectedCharacterId, 0x0D, 0x2B, 0xC8, 0x7C, 0x48)
+    displayCharacterStatBar(_selectedCharacterId, 0x11, 0x2D, 0xFF, 0x7C, 0x5F)
+    displayCharacterStatBar(_selectedCharacterId, 0x14, 0x2D, 0xFF, 0x7C, 0x76)
+    displayCharacterStatBar(_selectedCharacterId, 0x10, 0x2D, 0xFF, 0x7C, 0x8D)
+    displayCharacterStatBar(_selectedCharacterId, 0x12, 0x2D, 0xFF, 0x7C, 0xA4)
+    displayCharacterStatBar(_selectedCharacterId, 0x13, 0x2D, 0xFF, 0x7C, 0xBB)
+    sub186A1(_selectedCharacterId, 0x106, 0x22)
+    sub18746_snd(0x04)
+    displayTitleScreen(0x00)
+    sub1875D_snd()
+    initGameAreaDisplay()
+end
+
+rule "testMenuScripts-rule-65"
+  when
+    checkLastInterfaceHotspotIndexMenu13(0x01) and
+    not CurrentCharacterVar0Equals(0x09) and
+    not CurrentCharacterVar0Equals(0x0A) and
+    compareCharacterVariable(_selectedCharacterId, 0x0C, >, 0x01) and
+    compareCharacterVariable(_selectedCharacterId, 0x00, >, 0x06)
+  then
+    disableInterfaceHotspot(0x01, 0x32)
+    startSpeechIfMute(0x171)
+    setCurrentCharacterVar6(_selectedCharacterId)
+    sub17CB9(0x05, _selectedCharacterId, 0x83)
+    enableCurrentCharacterScript(0x3A)
+end
+
+rule "testMenuScripts-rule-66"
+  when
+    checkCodeEntered(0x04, 0x07, 0x02)
+  then
+    setInterfaceHotspot(0x0F, 0x02)
+    setInterfaceHotspot(0x10, 0x02)
+    setInterfaceHotspot(0x11, 0x02)
+    setInterfaceHotspot(0x0E, 0x02)
+    setInterfaceHotspot(0x00, 0x02)
+    setInterfaceHotspot(0x01, 0x02)
+    setInterfaceHotspot(0x04, 0x02)
+    setInterfaceHotspot(0x02, 0x02)
+    setInterfaceHotspot(0x03, 0x02)
+    setInterfaceHotspot(0x0C, 0x02)
+    setInterfaceHotspot(0x05, 0x02)
+    setInterfaceHotspot(0x06, 0x02)
+    setInterfaceHotspot(0x0A, 0x02)
+    setInterfaceHotspot(0x08, 0x02)
+    setInterfaceHotspot(0x07, 0x02)
+    setInterfaceHotspot(0x0B, 0x02)
+    setInterfaceHotspot(0x0D, 0x02)
+    setInterfaceHotspot(0x09, 0x02)
+end
+
+rule "testMenuScripts-rule-67"
+  when
+    checkCodeEntered(0x03, 0x07, 0x00)
+  then
+    ComputeCharacterVariable(val(0x09), 0x07, =, 0x00)
+    enableCharacterScript(val(0x09), 0x3D)
+end
+
+rule "testMenuScripts-rule-68"
+  when
+    checkCodeEntered(0x03, 0x07, 0x01)
+  then
+    ComputeCharacterVariable(val(0x09), 0x07, =, 0x01)
+    enableCharacterScript(val(0x09), 0x3D)
+end
+
+rule "testMenuScripts-rule-69"
+  when
+    checkCodeEntered(0x03, 0x07, 0x02)
+  then
+    ComputeCharacterVariable(val(0x09), 0x07, =, 0x02)
+    enableCharacterScript(val(0x09), 0x3D)
+end
+
+rule "testMenuScripts-rule-70"
+  when
+    checkCodeEntered(0x03, 0x07, 0x03)
+  then
+    ComputeCharacterVariable(val(0x09), 0x07, =, 0x03)
+    enableCharacterScript(val(0x09), 0x3D)
+end
+
+rule "testMenuScripts-rule-71"
+  when
+    checkCodeEntered(0x04, 0x04, 0x01)
+  then
+    ComputeCharacterVariable(val(0x01), 0x0E, =, 0x02)
+end
+
+rule "testMenuScripts-rule-72"
+  when
+    checkCodeEntered(0x02, 0x01, 0x03)
+  then
+    setCharacterPosition(characterIndex, (0x2C, 0x2C))
+    setCurrentCharacterDirection(0x00)
+    enableCurrentCharacterScript(0x26)
+end
+
+rule "testMenuScripts-rule-73"
+  when
+    checkCodeEntered(0x02, 0x01, 0x04)
+  then
+    setCharacterPosition(characterIndex, (0x06, 0x06))
+    setCurrentCharacterDirection(0x03)
+    enableCurrentCharacterScript(0x26)
+end
+
+rule "testMenuScripts-rule-74"
+  when
+    checkCodeEntered(0x02, 0x02, 0x02)
+  then
+    waitForEvent()
+end
+
+rule "testMenuScripts-rule-75"
+  when
+    checkCodeEntered(0x08, 0x02, 0x08)
+  then
+    CharacterVariableAddOrRemoveFlag(val(0x01), 0x0C, 0x40, 0x00)
+    CharacterVariableAddOrRemoveFlag(val(0x01), 0x0C, 0x20, 0x00)
+    CharacterVariableAddOrRemoveFlag(val(0x01), 0x0C, 0x10, 0x00)
+end
+
+rule "testMenuScripts-rule-76"
+  when
+    checkCodeEntered(0x06, 0x05, 0x09)
+  then
+    CharacterVariableAddOrRemoveFlag(val(0x04), 0x0B, 0x01, 0x01)
+    ComputeCharacterVariable(val(0x04), 0x12, =, 0xF0)
+    ComputeCharacterVariable(val(0x04), 0x0D, =, 0x00)
+    enableCharacterScript(val(0x04), 0xFF)
+    CharacterVariableAddOrRemoveFlag(val(0x05), 0x0B, 0x01, 0x01)
+    ComputeCharacterVariable(val(0x05), 0x12, =, 0xF0)
+    enableCharacterScript(val(0x05), 0xFF)
+    CharacterVariableAddOrRemoveFlag(val(0x06), 0x0B, 0x01, 0x01)
+    ComputeCharacterVariable(val(0x06), 0x12, =, 0xF0)
+    setCharacterPosition(val(0x06), (_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter]))
+    enableCharacterScript(val(0x06), 0xFF)
+    ChangeIsoMap((0x30, 0x30), 0x03, 0x01)
+    sub18690(val(0x03), (0x36, 0x36))
+    sub18690(val(0x04), (0x38, 0x38))
+    sub18690(val(0x06), (0x37, 0x37))
+    setCharacterMapColor(val(0x04), 0x09)
+    setCharacterMapColor(val(0x06), 0x09)
+    setCharacterMapColor(val(0x05), 0x09)
+end
+
+rule "testMenuScripts-rule-77"
+  when
+    checkCodeEntered(0x01, 0x00, 0x03)
+  then
+    ComputeCharacterVariable(val(0x08), 0x12, =, 0xFF)
+    setInterfaceHotspot(0x09, 0x02)
+    ComputeCharacterVariable(val(0x08), 0x17, =, 0x03)
+end
+
+rule "testMenuScripts-rule-78"
+  when
+    checkCodeEntered(0x09, 0x02, 0x07)
+  then
+    setCharacterPosition(val(0x03), _vm->_rulesBuffer12Pos3[17])
+    enableCharacterScript(val(0x09), 0x06)
+    setCharacterPosition(val(0x0B), _vm->_rulesBuffer12Pos3[31])
+    setCharacterPosition(val(0x0C), _vm->_rulesBuffer12Pos3[31])
+    setCharacterPosition(val(0x0D), _vm->_rulesBuffer12Pos3[31])
+    setCharacterPosition(val(0x0E), _vm->_rulesBuffer12Pos3[31])
+    setCharacterPosition(val(0x0F), _vm->_rulesBuffer12Pos3[31])
+    enableCurrentCharacterScript(0x26)
+end
+
+rule "testMenuScripts-rule-79"
+  when
+    checkCodeEntered(0x01, 0x06, 0x06)
+  then
+    ComputeCharacterVariable(val(0x01), 0x14, =, 0xFF)
+end
+
+rule "testMenuScripts-rule-80"
+  when
+    checkCodeEntered(0x01, 0x06, 0x07)
+  then
+    ComputeCharacterVariable(val(0x01), 0x14, =, 0x00)
+end
+
+rule "testMenuScripts-rule-81"
+  when
+    checkCodeEntered(0x06, 0x06, 0x06)
+  then
+    enableCharacterScript(val(0x1B), 0x53)
+end

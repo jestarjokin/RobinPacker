@@ -1,4 +1,5 @@
 import robinpacker.script.ast.elements as ast
+import robinpacker.script.argtypes as argtypes
 import robinpacker.script.opcodes as opcodes
 from robinpacker.util import RobinScriptError
 
@@ -13,7 +14,7 @@ def parse_hex(toks):
 
 def parse_immediate_arg(toks):
     arg_node = ast.ArgumentNode()
-    arg_node.arg_type = ast.ARG_TYPE_IMMEDIATE_VALUE
+    arg_node.arg_type = argtypes.IMMEDIATE_VALUE
     arg_node.value = toks[0]
     return arg_node
 
@@ -30,7 +31,7 @@ def parse_get_value_arg(toks):
     except KeyError:
         value = toks[1]
     arg_node = ast.ArgumentNode()
-    arg_node.arg_type = ast.ARG_TYPE_GET_VALUE_1
+    arg_node.arg_type = argtypes.GET_VALUE_1
     arg_node.value = value
     return arg_node
 
@@ -40,14 +41,14 @@ def parse_compare_arg(toks):
         value = '='
     value = ord(value)
     arg_node = ast.ArgumentNode()
-    arg_node.arg_type = ast.ARG_TYPE_COMPARE_OPERATION
+    arg_node.arg_type = argtypes.COMPARE_OPERATION
     arg_node.value = value
     return arg_node
 
 def parse_compute_arg(toks):
     value = ord(toks[0])
     arg_node = ast.ArgumentNode()
-    arg_node.arg_type = ast.ARG_TYPE_COMPUTE_OPERATION
+    arg_node.arg_type = argtypes.COMPUTE_OPERATION
     arg_node.value = value
     return arg_node
 
@@ -80,7 +81,7 @@ def parse_point_arg(toks):
     else:
         raise RobinScriptError('Unrecognised point argument: {}'.format(toks))
     arg_node = ast.ArgumentNode()
-    arg_node.arg_type = ast.ARG_TYPE_GET_POS_FROM_SCRIPT
+    arg_node.arg_type = argtypes.GET_POS_FROM_SCRIPT
     arg_node.value = value
     return arg_node
 
@@ -100,14 +101,14 @@ def parse_conditional(toks):
 
 def __parse_function_call(function_name, args, is_conditional):
     function_node = ast.FunctionNode()
-    opcode_lookup = opcodes.conditionalOpCodesLookup if is_conditional else opcodes.actionOpCodesLookup
+    opcode_lookup = opcodes.conditionalOpcodesLookup if is_conditional else opcodes.actionOpcodesLookup
     try:
-        opcode_value, opcode = opcode_lookup[function_name]
+        opcode = opcode_lookup[function_name]
     except KeyError:
         raise RobinScriptError('Unknown function call: {}'.format(function_name))
-    if opcode.numArgs != len(args):
+    if len(opcode.arguments) != len(args):
         raise RobinScriptError('Invalid number of arguments passed to function "{}". Expected {}, but was passed {}.'.format(
-            function_name, opcode.numArgs, len(args)
+            function_name, len(opcode.arguments), len(args)
         ))
     function_node.opcode = opcode
     function_node.arguments = list(args)

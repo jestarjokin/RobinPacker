@@ -1,8 +1,5 @@
 #! /usr/bin/python
 
-(ARG_TYPE_IMMEDIATE_VALUE, ARG_TYPE_COMPARE_OPERATION, ARG_TYPE_COMPUTE_OPERATION,
- ARG_TYPE_GET_VALUE_1, ARG_TYPE_GET_POS_FROM_SCRIPT) = range(5)
-
 
 class RootNode(object):
     def __init__(self):
@@ -37,7 +34,7 @@ class FunctionNode(object):
         self.arguments = []
 
     def __repr__(self):
-        return "FunctionNode('{}', {})".format(self.opcode.opName if self.opcode else None, self.arguments)
+        return "FunctionNode('{}', {})".format(self.opcode.name if self.opcode else None, self.arguments)
 
 
 class ArgumentNode(object):
