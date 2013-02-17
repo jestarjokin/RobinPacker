@@ -1,0 +1,20 @@
+rule "erules_out_gameScript_89-rule-01"
+  when
+    CurrentCharacterVar1Equals(0x00)
+  then
+    callScript(0x19, characterIndex)
+    sub17FDD(0x00)
+    turnCharacterTowardsAnother(val(0x03))
+    setCurrentCharacterVar2(0x0A)
+    IncCurrentCharacterVar1()
+end
+
+rule "erules_out_gameScript_89-rule-02"
+  when
+    CurrentCharacterVar1Equals(0x01) and
+    CurrentCharacterVar2Equals1()
+  then
+    getRotatingVariantSpeech(0xCB, 0x00)
+    enableCurrentCharacterScript(0x6A)
+end
+

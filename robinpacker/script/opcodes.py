@@ -158,6 +158,6 @@ actionOpcodes = (
     Opcode(98, 'sub18746_snd', (argtypes.IMMEDIATE_VALUE,)),
     Opcode(99, 'sub1875D_snd', ()),
     Opcode(100, 'setCharacterMapColor', (argtypes.GET_VALUE_1, argtypes.IMMEDIATE_VALUE)),
-    Opcode(101, 'initGameAreaDisplay', ()),
+    Opcode(101, 'initGameAreaDisplay2', ()),
 )
 actionOpcodesLookup = {opcode.name : opcode for opcode in actionOpcodes}

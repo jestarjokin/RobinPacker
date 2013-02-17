@@ -30,14 +30,15 @@ class RobinRulesCompiler(object):
     def _compile_rule(self, rule_node, output):
         for conditional_node in rule_node.conditions:
             self._compile_conditional(conditional_node, output)
-        pack(output, 0xFFF8, '<H')
+        pack(output, 0xFFF8, '<H') # end of conditionals
         for function_node in rule_node.actions:
             self._compile_function(function_node, output)
-        pack(output, 0xFFF7, '<H')
+        pack(output, 0xFFF7, '<H') # end of actions
 
     def compile(self, root_node, output):
         for rule_node in root_node.rules:
             self._compile_rule(rule_node, output)
+        pack(output, 0xFFF6, '<H') # end of script
 
     def compile_to_string(self, root_node):
         output = StringIO.StringIO()

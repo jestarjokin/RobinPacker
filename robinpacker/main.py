@@ -29,6 +29,9 @@ def main(args):
     oparser.add_option("-u", "--unpack", action="store_true",
         dest="unpack", default=False,
         help="Unpack game resources into loose files.")
+    oparser.add_option("-d", "--dump-scripts", action="store_true",
+        dest="dump_scripts", default=False,
+        help="Dump scripts to binary files, instead of disassembling them.")
 
     options, args = oparser.parse_args()
 

@@ -1,4 +1,5 @@
 #! /usr/bin/python
+import logging
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -14,14 +15,15 @@ def unpack(rfile, format):
 
 
 class BytecodeToTreeConverter(object):
-    def __init__(self):
-        pass
+    def __init__(self, debug_mode=False):
+        self.debug_mode = debug_mode
 
     def _parse_function_call(self, opcode, script):
         function_node = ast.FunctionNode()
         function_node.opcode = opcode
         for arg_type in opcode.arguments:
             value = unpack(script, '<H')
+            if self.debug_mode: print "argument: type: {0}, val: 0x{1:02X}, pos: 0x{2:02X}".format(argtypes.ARG_TYPE_LOOKUP[arg_type], value, script.tell())
             argument_node = ast.ArgumentNode()
             argument_node.value = value
             argument_node.arg_type = arg_type
@@ -34,7 +36,9 @@ class BytecodeToTreeConverter(object):
         rule_counter = 0
         root_node = ast.RootNode()
         while not eof:
+            if self.debug_mode: print "New rule, pos: 0x{0:02X}".format(script.tell())
             val = unpack(script, '<H')
+            if self.debug_mode: print "conditional val: 0x{0:02X}, pos: 0x{1:02X}".format(val, script.tell())
             if val == 0xFFF6: # end of script
                 break
 
@@ -53,20 +57,25 @@ class BytecodeToTreeConverter(object):
                 # op code type 1
                 assert val < len(conditionalOpcodes)
                 opcode = conditionalOpcodes[val]
+                if self.debug_mode:print opcode.name
 
                 function_node = self._parse_function_call(opcode, script)
                 conditional_node.function = function_node
                 rule_node.conditions.append(conditional_node)
                 val = unpack(script, '<H')
+                if self.debug_mode: print "conditional val: 0x{0:02X}, pos: 0x{1:02X}".format(val, script.tell())
 
             val = unpack(script, '<H')
+            if self.debug_mode:print "action val: 0x{0:02X}, pos: 0x{1:02X}".format(val, script.tell())
             while val != 0xFFF7:
                 # op code type 2
                 assert val < len(actionOpcodes)
                 opcode = actionOpcodes[val]
+                if self.debug_mode: print opcode.name
                 function_node = self._parse_function_call(opcode, script)
                 rule_node.actions.append(function_node)
                 val = unpack(script, '<H')
+                if self.debug_mode: print "action val: 0x{0:02X}, pos: 0x{1:02X}".format(val, script.tell())
 
             root_node.rules.append(rule_node)
         script.close()
@@ -128,7 +137,7 @@ class TreeToRulesScriptWriter(object):
             elif tmpVal == 0xF6:
                 out_str = "_savedMousePosDivided"
             else:
-                out_str = "(0x{0:02X}, 0x{0:02X})".format(curWord >> 8, curWord & 0xFF)
+                out_str = "(0x{0:02X}, 0x{1:02X})".format(curWord >> 8, curWord & 0xFF)
         elif argument_node.arg_type == argtypes.COMPARE_OPERATION:
             comp = argument_node.value
             if comp != ord('<') and comp != ord('>'):
@@ -173,14 +182,17 @@ class TreeToRulesScriptWriter(object):
             output_file.write("end\n\n")
 
 
-class ScriptDisassembler(object):
-    def __init__(self):
-        self.to_tree_converter = BytecodeToTreeConverter()
-        self.script_writer = TreeToRulesScriptWriter()
+def disassemble(script_byte_string, output_file, script_base_name):
+    """
+    The input script should be a string of bytes.
+    """
+    root_node = BytecodeToTreeConverter().convert(script_byte_string, script_base_name)
+    TreeToRulesScriptWriter().write_tree_to_file(root_node, output_file)
 
-    def disassemble(self, script_byte_string, output_file, script_base_name):
-        """
-        script should be a string of bytes.
-        """
-        root_node = self.to_tree_converter.convert(script_byte_string, script_base_name)
-        self.script_writer.write_tree_to_file(root_node, output_file)
+def debug_disassemble(script_byte_string, output_file, script_base_name):
+    """
+    The input script should be a string of bytes.
+    Prints extra information in the output.
+    """
+    root_node = BytecodeToTreeConverter(debug_mode=True).convert(script_byte_string, script_base_name)
+    TreeToRulesScriptWriter().write_tree_to_file(root_node, output_file)

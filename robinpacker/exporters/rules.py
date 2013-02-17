@@ -6,12 +6,20 @@ import logging
 import os.path
 
 from script import ScriptExporter
+import robinpacker.structs.character
+import robinpacker.structs.point
+import robinpacker.structs.raw
+import robinpacker.structs.rect
 import robinpacker.structs.rules
-
+import robinpacker.structs.script
 
 class RulesJsonExporter(object):
+    def __init__(self, dump_scripts=False):
+        self.dump_scripts = dump_scripts
+
     def export(self, rules, json_file_name):
         script_exporter = ScriptExporter()
+        this = self
         class RulesJsonEncoder(json.JSONEncoder):
             def default(self, obj):
                 if isinstance(obj, robinpacker.structs.rules.RulesData):
@@ -72,7 +80,10 @@ class RulesJsonExporter(object):
                     result['bottomRightPosY'] = obj.bottomRightPosY
                     result['bottomRightPosX'] = obj.bottomRightPosX
                     return result
-                elif isinstance(obj, robinpacker.structs.raw.RawData):
+                elif isinstance(obj, robinpacker.structs.raw.RawData) or (
+                    isinstance(obj, robinpacker.structs.script.ScriptData) and
+                    this.dump_scripts
+                ):
                     raw_fname = os.path.splitext(json_file_name)[0]  + '_' + obj.id + '.dmp'
                     logging.debug('Dumping raw data to {}'.format(raw_fname))
                     with file(raw_fname, 'wb') as raw_file:

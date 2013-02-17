@@ -1,0 +1,7 @@
+rule "erules_out_gameScript_102-rule-01"
+  when
+    compWord16EFE(0x5A)
+  then
+    enableCurrentCharacterScript(0x21)
+end
+

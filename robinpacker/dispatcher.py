@@ -66,15 +66,12 @@ class FileDispatcher(object):
             logging.info('Unpacking %s to %s...' % (input_fname, output_fname))
             unpacker = RulesBinaryUnpacker()
             rules = unpacker.unpack(input_fname)
-            #exporter = RulesXmlExporter()
-            exporter = RulesJsonExporter()
+            exporter = RulesJsonExporter(options.dump_scripts)
             exporter.export(rules, output_fname)
         elif options.pack:
             logging.info('Packing %s to %s...' % (input_fname, output_fname))
             importer = RulesJsonImporter()
             rules = importer.importFile(input_fname)
-            #exporter = RulesJsonExporter()
-            #exporter.export(rules, output_fname)
             packer = RulesBinaryPacker()
             packer.pack(rules, output_fname)
         else:
