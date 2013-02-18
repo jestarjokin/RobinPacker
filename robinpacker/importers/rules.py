@@ -3,6 +3,7 @@
 import json
 import os.path
 
+import robinpacker.script.compiler as compiler
 from robinpacker.structs.character import CharacterData
 from robinpacker.structs.point import PointData
 from robinpacker.structs.rules import RulesData
@@ -82,9 +83,10 @@ class RulesJsonImporter(object):
                 id = dct['id']
                 base_name = dct['path']
                 path_name = os.path.split(json_file_name)[0]
-                raw_fname = os.path.join(path_name, base_name)
-                with file(raw_fname, 'rb') as raw_file:
-                    data = raw_file.read()
+                script_fname = os.path.join(path_name, base_name)
+                with file(script_fname, 'rb') as script_file:
+                    data = script_file.read()
+                data = compiler.compile_to_string(data)
                 return ScriptData(id, data)
         with file(json_file_name, 'r') as json_file:
             rules = json.load(json_file, object_hook=decode_objects)

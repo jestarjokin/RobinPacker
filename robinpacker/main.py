@@ -2,6 +2,7 @@
 
 import logging
 from optparse import OptionParser
+import os
 import sys
 
 import dispatcher
@@ -15,6 +16,10 @@ def validate_args(args, options):
         return False
     elif not options.pack and not options.unpack:
         logging.error("You must specify either -p or -u.")
+        return False
+    elif ((os.path.isdir(args[0]) and not os.path.isdir(args[1])) or
+        (not os.path.isdir(args[0]) and os.path.isdir(args[1]))):
+        logging.error("If input is a directory, output must also be a directory, and vice versa.")
         return False
     return True
 

@@ -3,7 +3,7 @@ try:
 except ImportError:
     import StringIO
 
-import robinpacker.script.opcodes as opcodes
+import robinpacker.script.parser.parser as parser
 from robinpacker.util import pack
 
 class RobinRulesCompiler(object):
@@ -43,9 +43,15 @@ class RobinRulesCompiler(object):
     def compile_to_string(self, root_node):
         output = StringIO.StringIO()
         self.compile(root_node, output)
-        return output.getvalue()
+        result = output.getvalue()
+        output.close()
+        return result
 
 
-def compile_to_string(root_node):
+def compile_tree_to_string(root_node):
     compiler = RobinRulesCompiler()
     return compiler.compile_to_string(root_node)
+
+def compile_to_string(text_script_string):
+    root_node = parser.parse_string(text_script_string)
+    return compile_tree_to_string(root_node)

@@ -1,17 +1,16 @@
 #! /usr/bin/python
 
-import collections
 import logging
-import os.path
+import os
 
+from exporters.project import ProjectExporter
 from exporters.rules import RulesJsonExporter
 from importers.rules import RulesJsonImporter
 from packers.rules import RulesBinaryPacker
+from unpackers.rules import RulesBinaryUnpacker
+from exporters.gfx import GfxPngExporter, GfxJsonExporter
 from importers.gfx import GfxPngImporter, GfxJsonImporter
 from packers.gfx import GfxBinaryPacker
-from unpackers.rules import RulesBinaryUnpacker
-
-from exporters.gfx import GfxPngExporter, GfxJsonExporter
 from unpackers.gfx import GfxBinaryUnpacker
 from structs.gfx import GfxMetadata
 
@@ -49,17 +48,17 @@ class FileDispatcher(object):
         output_fname = args[1]
         if os.path.isdir(input_fname):
             self.process_directory(input_fname, output_fname, options)
-        ext = os.path.splitext(input_fname)[1].lower()
-        if ext in ('.prg', '.json'):
-            self.process_prg(input_fname, output_fname, options)
-        elif ext in ('.gfx', '.vga', '.png', '.raw'):
-            self.process_gfx(input_fname, output_fname, options)
-#        elif ext == '.vga':
-#            self.process_vga(input_fname, output_fname, options)
-        # TODO: support for isomap.dta
         else:
-            logging.error('Unrecognised extension: %s' % ext)
-            raise NotImplementedError()
+            ext = os.path.splitext(input_fname)[1].lower()
+            if ext in ('.prg', '.json'):
+                self.process_prg(input_fname, output_fname, options)
+            elif ext in ('.gfx', '.vga', '.png', '.raw'):
+                self.process_gfx(input_fname, output_fname, options)
+            # TODO: support for isomap.dta
+            # TODO: support for sound data
+            else:
+                logging.error('Unrecognised extension: %s' % ext)
+                raise NotImplementedError()
 
     def process_prg(self, input_fname, output_fname, options):
         if options.unpack:
@@ -101,8 +100,12 @@ class FileDispatcher(object):
             packer = GfxBinaryPacker()
             packer.pack(gfx_data, out_fname)
 
-
-    def process_directory(self, in_fname, out_fname, options):
-        for x, y, z in os.path.walk(in_fname):
-            # TODO
-            pass
+    def process_directory(self, in_dir, out_dir, options):
+        if options.unpack:
+            exporter = ProjectExporter()
+            exporter.export(in_dir, out_dir, options, self)
+#        else:
+#            accepted_extensions = {
+#                '.json' : '.prg',
+#                '.png' : '.gfx' # or .vga, hmm.
+#            }
