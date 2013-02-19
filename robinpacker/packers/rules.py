@@ -92,9 +92,10 @@ class RulesBinaryPacker(object):
             format = '<H'
             numEntries = len(rules.gameScripts)
             pack(rfile, numEntries, format)
+            totalSize = 0
             for script_data in rules.gameScripts:
-                size = len(script_data.data)
-                pack(rfile, size, format)
+                pack(rfile, totalSize, format)
+                totalSize += len(script_data.data)
             pack(rfile, totalSize, format)
             for script_data in rules.gameScripts:
                 rfile.write(script_data.data)
