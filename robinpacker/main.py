@@ -17,9 +17,8 @@ def validate_args(args, options):
     elif not options.pack and not options.unpack:
         logging.error("You must specify either -p or -u.")
         return False
-    elif ((os.path.isdir(args[0]) and not os.path.isdir(args[1])) or
-        (not os.path.isdir(args[0]) and os.path.isdir(args[1]))):
-        logging.error("If input is a directory, output must also be a directory, and vice versa.")
+    elif not os.path.isdir(args[0]) and not os.path.isfile(args[0]):
+        logging.error("Input file or directory does not appear to exist: {}".format(args[0]))
         return False
     return True
 

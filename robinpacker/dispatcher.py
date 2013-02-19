@@ -4,6 +4,7 @@ import logging
 import os
 
 from exporters.project import ProjectExporter
+from importers.project import ProjectImporter
 from exporters.rules import RulesJsonExporter
 from importers.rules import RulesJsonImporter
 from packers.rules import RulesBinaryPacker
@@ -46,6 +47,9 @@ class FileDispatcher(object):
     def dispatch_args(self, args, options):
         input_fname = args[0]
         output_fname = args[1]
+        self.dispatch_file(input_fname, output_fname, options)
+
+    def dispatch_file(self, input_fname, output_fname, options):
         if os.path.isdir(input_fname):
             self.process_directory(input_fname, output_fname, options)
         else:
@@ -104,8 +108,6 @@ class FileDispatcher(object):
         if options.unpack:
             exporter = ProjectExporter()
             exporter.export(in_dir, out_dir, options, self)
-#        else:
-#            accepted_extensions = {
-#                '.json' : '.prg',
-#                '.png' : '.gfx' # or .vga, hmm.
-#            }
+        else:
+            importer = ProjectImporter()
+            importer.importDirectory(in_dir, out_dir, options, self)

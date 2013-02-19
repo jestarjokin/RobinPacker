@@ -16,5 +16,8 @@ def mkdir(dir_name):
     if not os.path.isdir(dir_name):
         os.makedirs(dir_name)
 
+class RobinPackerException(Exception):
+    pass
+
 class RobinScriptError(Exception):
     pass
