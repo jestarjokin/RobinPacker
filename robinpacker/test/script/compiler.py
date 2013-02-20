@@ -8,7 +8,6 @@ import unittest
 
 import robinpacker.script.disasm as disasm
 import robinpacker.script.compiler as compiler
-import robinpacker.script.parser.parser as parser
 
 class RobinRulesCompilerTest(unittest.TestCase):
     def __compare_scripts(self, expected_script, actual_bytecode, script_fname):
@@ -29,8 +28,7 @@ class RobinRulesCompilerTest(unittest.TestCase):
     def __read_and_compare(self, script_fname, bytecode_fname):
         with file(os.path.join('data', script_fname), 'r') as script_file:
             input_str = script_file.read()
-        root_node = parser.parse_string(input_str)
-        result = compiler.compile_to_string(root_node)
+        result = compiler.compile_to_string(input_str)
         with file(os.path.join('data', bytecode_fname), 'rb') as bytecode_file:
             expected_bytecode = bytecode_file.read()
         self.__compare_scripts(input_str, result, script_fname)

@@ -90,7 +90,7 @@ class TreeToRulesScriptWriter(object):
         out_str = ""
         if argument_node.arg_type == argtypes.IMMEDIATE_VALUE:
             out_str = "0x{0:02X}".format(argument_node.value)
-        elif argument_node.arg_type == argtypes.GET_VALUE_1:
+        elif argument_node.arg_type == argtypes.GET_VALUE:
             val = argument_node.value
             if val < 1000:
                 out_str = "val(0x{0:02X})".format(val) # might need to change this, for easier parsing
@@ -106,7 +106,7 @@ class TreeToRulesScriptWriter(object):
                 out_str = "_currentCharacterVariables[6]"
             elif val == 1004:
                 out_str = "_word10804"
-        elif argument_node.arg_type == argtypes.GET_POS_FROM_SCRIPT:
+        elif argument_node.arg_type == argtypes.POINT_VALUE:
             curWord = argument_node.value
             tmpVal = curWord >> 8
             # switch statement

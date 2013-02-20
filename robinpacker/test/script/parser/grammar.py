@@ -56,25 +56,25 @@ class GrammarTest(unittest.TestCase):
 
     def testParseGetValueArg(self):
         arg_node = grammar.get_value_arg.parseString('_word10804')[0]
-        self.assertEqual(argtypes.GET_VALUE_1, arg_node.arg_type)
+        self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1004, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('_currentCharacterVariables[6]')[0]
-        self.assertEqual(argtypes.GET_VALUE_1, arg_node.arg_type)
+        self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1003, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('_word16F00_characterId')[0]
-        self.assertEqual(argtypes.GET_VALUE_1, arg_node.arg_type)
+        self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1002, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('characterIndex')[0]
-        self.assertEqual(argtypes.GET_VALUE_1, arg_node.arg_type)
+        self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1001, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('_selectedCharacterId')[0]
-        self.assertEqual(argtypes.GET_VALUE_1, arg_node.arg_type)
+        self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1000, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('getValue1(0x2B00)')[0]
-        self.assertEqual(argtypes.GET_VALUE_1, arg_node.arg_type)
+        self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(0x2B00, arg_node.value)
         arg_node = grammar.get_value_arg.parseString('val(0x2B)')[0]
-        self.assertEqual(argtypes.GET_VALUE_1, arg_node.arg_type)
+        self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(0x2B, arg_node.value)
 
     def testParseCompareArg(self):
@@ -117,7 +117,7 @@ class GrammarTest(unittest.TestCase):
     def testParsePointArg(self):
         def compare(input_str, expected_value):
             arg_node = grammar.point_arg.parseString(input_str)[0]
-            self.assertEqual(argtypes.GET_POS_FROM_SCRIPT, arg_node.arg_type)
+            self.assertEqual(argtypes.POINT_VALUE, arg_node.arg_type)
             self.assertEqual(expected_value, arg_node.value)
         compare('(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])', 0xFF00)
         compare('_currentScriptCharacterPosition', 0xFD00)
@@ -179,7 +179,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(argtypes.IMMEDIATE_VALUE, argument_node.arg_type)
         self.assertEqual(0x01, argument_node.value)
         argument_node = function_node.arguments[1]
-        self.assertEqual(argtypes.GET_VALUE_1, argument_node.arg_type)
+        self.assertEqual(argtypes.GET_VALUE, argument_node.arg_type)
         self.assertEqual(1001, argument_node.value)
 
     def testParseActionFunctionFailures(self):
@@ -355,7 +355,7 @@ class MegaScriptCreator(object):
             else:
                 out_str = "{}".format(self.immediate_arg_i)
             self.immediate_arg_i += 1
-        elif arg_type == argtypes.GET_VALUE_1:
+        elif arg_type == argtypes.GET_VALUE:
             variation = self.get_value_arg_i % 7
             value = self.get_value_arg_i % 0xFFFF
             if variation == 0:
@@ -373,7 +373,7 @@ class MegaScriptCreator(object):
             elif variation == 6:
                 out_str = "_word10804"
             self.get_value_arg_i += 1
-        elif arg_type == argtypes.GET_POS_FROM_SCRIPT:
+        elif arg_type == argtypes.POINT_VALUE:
             variation = self.point_arg_i % 11
             value = self.point_arg_i % 0xFFFF
             if variation == 0:

@@ -37,7 +37,7 @@ def parse_get_value_arg(toks):
     except KeyError:
         value = toks[1]
     arg_node = ast.ArgumentNode()
-    arg_node.arg_type = argtypes.GET_VALUE_1
+    arg_node.arg_type = argtypes.GET_VALUE
     arg_node.value = value
     return arg_node
 
@@ -106,7 +106,7 @@ def parse_point_arg(toks):
     else:
         raise RobinScriptError('Unrecognised point argument: {}'.format(toks))
     arg_node = ast.ArgumentNode()
-    arg_node.arg_type = argtypes.GET_POS_FROM_SCRIPT
+    arg_node.arg_type = argtypes.POINT_VALUE
     arg_node.value = value
     return arg_node
 

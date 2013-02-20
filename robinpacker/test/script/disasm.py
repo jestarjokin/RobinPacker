@@ -13,7 +13,7 @@ class ScriptDisassemblerTest(unittest.TestCase):
         with file(os.path.join('data', 'erules_out_menuScripts.dmp'), 'rb') as bytecode_file:
             script = bytecode_file.read()
         output = StringIO.StringIO()
-        disasm.disassemble(script, output, 'testMenuScripts')
+        disasm.disassemble(script, output, 'erules_out_menuScripts')
         output.seek(0)
         with file(os.path.join('data', 'erules_out_menuScripts.rrs'), 'r') as rules_file:
             while True:
