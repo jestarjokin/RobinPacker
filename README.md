@@ -74,7 +74,7 @@ Refer to the section _Function reference_ for a list of functions you can use in
 
 RobinPacker is available from:
 
-    [https://github.com/jestarjokin/RobinPacker/](https://github.com/jestarjokin/RobinPacker/)
+[https://github.com/jestarjokin/RobinPacker/](https://github.com/jestarjokin/RobinPacker/)
 
 Issues/bugs/feature requests can be lodged there.
 
