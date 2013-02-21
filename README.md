@@ -69,6 +69,7 @@ Refer to the section _Function reference_ for a list of functions you can use in
 * Support for ROBIN.MUS. There's definitely some standard MIDI data in there, but I'm not sure about the structure of the file.
 * Separate the rules JSON into more files, maybe one for each logical section extracted.
 * Better names for many of the functions in the rules scripts.
+* Support for Rome: Pathway to Power (aka Rome: AD 92)
 
 # Support
 
