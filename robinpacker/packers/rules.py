@@ -101,8 +101,9 @@ class RulesBinaryPacker(object):
                 rfile.write(script_data.data)
 
             # Chunk 9
-            assert(len(rules.rulesChunk9.data) == 60)
-            rfile.write(rules.rulesChunk9.data)
+            assert(len(rules.rulesChunk9) == 60)
+            format = '60B'
+            pack(rfile, rules.rulesChunk9, format)
 
             # Chunk 10 & 11
             format = 'B'

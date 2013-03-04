@@ -109,7 +109,8 @@ class RulesBinaryUnpacker(object):
             outData.gameScripts = gameScripts
 
             # Chunk 9
-            outData.rulesChunk9 = RawData('rulesChunk9', rfile.read(60))
+            format = '60B'
+            outData.rulesChunk9 = unpack(rfile, format)
 
             # Chunk 10 & 11
             numEntries = unpack(rfile, 'B')
