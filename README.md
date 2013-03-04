@@ -63,6 +63,18 @@ There is a special case for rules with no conditionals. Omit the "when" section,
 
 Refer to the section _Function reference_ for a list of functions you can use in conditionals or actions.
 
+Comments are written using the hash symbol, `#`, and will apply to any text after the hash until the end of the line.
+This is similar to comments used in the Python programming language.
+
+    # This rule is totally awesome
+    rule "erules_out_gameScript_11-rule-01"
+      when # when? WHEN? How about NOW!
+        CurrentCharacterVar0Equals(0x00) #and
+        #sub17782(0x2B)
+      then
+        callScriptAndReturn(0x3A, characterIndex)
+    end
+
 # TODO
 
 * Support for ISOMAP.DTA.

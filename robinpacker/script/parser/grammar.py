@@ -77,7 +77,7 @@ def define_point_arg():
     point_arg = oneOf(funky_values) | rules_buffer_2_arg | character_pos_arg | rules_buffer_12_arg | normal_point_arg
     return point_arg
 
-
+comment = pythonStyleComment
 string_value = dblQuotedString.copy()
 
 integer = Word(nums)
@@ -118,6 +118,7 @@ rule = (Suppress(Keyword('rule')) + string_value +
 )
 
 root = ZeroOrMore(rule)('rules')
+root.ignore(comment)
 
 
 # Assign some parse actions

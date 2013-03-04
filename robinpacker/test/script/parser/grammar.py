@@ -330,6 +330,25 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(ast.RuleNode, type(root_node.rules[0]))
         self.assertEqual(ast.RuleNode, type(root_node.rules[1]))
 
+    def testIgnoreComments(self):
+        input_str = """
+            # Monkey see
+            rule "erulesout_gameScript_22-rule-06" # Monkey do
+              when
+                CurrentCharacterVar0Equals(0x01) #and
+                #sub17782(0x2B)
+              then
+                enableCurrentCharacterScript(0x00)
+            end
+        """
+        result = grammar.root.parseString(input_str)
+        print result
+        root_node = result[0]
+        self.assertEqual(1, len(root_node.rules))
+        rule_node = root_node.rules[0]
+        self.assertEqual(ast.RuleNode, type(rule_node))
+        self.assertEqual(1, len(rule_node.conditions))
+
     def testParseMegaScript(self):
         script = MegaScriptCreator().create_script()
         #print script
