@@ -123,10 +123,10 @@ class RulesBinaryUnpacker(object):
                     chunk10Sizes.append(val)
                     totalSize += val
                 if totalSize:
-                    #outData.chunk10Indexes = chunk10Indexes
                     rulesChunk11 = []
-                    for i, size in enumerate(chunk10Sizes):
-                        data = RawData('rulesChunk11_{}'.format(i + 1), rfile.read(size))
+                    for size in chunk10Sizes:
+                        format = '{}B'.format(size)
+                        data = unpack(rfile, format)
                         rulesChunk11.append(data)
                     outData.rulesChunk11 = rulesChunk11
 

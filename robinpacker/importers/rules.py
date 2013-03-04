@@ -83,7 +83,7 @@ class RulesJsonImporter(object):
                 id = dct['id']
                 base_name = dct['path']
                 path_name = os.path.split(json_file_name)[0]
-                script_fname = os.path.join(path_name, base_name)
+                script_fname = os.path.join(path_name, 'scripts', base_name)
                 with file(script_fname, 'rb') as script_file:
                     data = script_file.read()
                 data = compiler.compile_to_string(data)

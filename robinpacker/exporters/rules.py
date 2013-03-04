@@ -12,6 +12,7 @@ import robinpacker.structs.raw
 import robinpacker.structs.rect
 import robinpacker.structs.rules
 import robinpacker.structs.script
+from robinpacker.util import mkdir
 
 class RulesJsonExporter(object):
     def __init__(self, dump_scripts=False):
@@ -95,7 +96,13 @@ class RulesJsonExporter(object):
                     result['path'] = relative_fname
                     return result
                 elif isinstance(obj, robinpacker.structs.script.ScriptData):
-                    script_fname = os.path.splitext(json_file_name)[0]  + '_' + obj.id + '.rrs'
+                    # Scripts are written to a "scripts" sub-directory, and each script's name is derived
+                    #  from the JSON file's name and the script's ID property.
+                    dir_name, base_name = os.path.split(json_file_name)
+                    base_name = os.path.splitext(base_name)[0]
+                    dir_name = os.path.join(dir_name, 'scripts')
+                    mkdir(dir_name)
+                    script_fname = os.path.join(dir_name, '{}_{}.rrs'.format(base_name, obj.id))
                     logging.debug('Disassembling script data to {}'.format(script_fname))
                     script_exporter.export(obj, script_fname)
                     relative_fname = os.path.basename(script_fname)
