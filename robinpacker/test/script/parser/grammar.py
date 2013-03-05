@@ -14,8 +14,8 @@ from robinpacker.util import RobinScriptError
 
 class GrammarTest(unittest.TestCase):
     def testParseString(self):
-        result = grammar.string_value.parseString('"rule_52"')
-        self.assertEqual('rule_52', result[0])
+        result = grammar.string_value.parseString('"rule_52 is pretty \\"cool\\""')
+        self.assertEqual('rule_52 is pretty "cool"', result[0])
 
     def testParseInteger(self):
         result = grammar.integer.parseString('52')
@@ -181,6 +181,16 @@ class GrammarTest(unittest.TestCase):
         argument_node = function_node.arguments[1]
         self.assertEqual(argtypes.GET_VALUE, argument_node.arg_type)
         self.assertEqual(1001, argument_node.value)
+
+    def testParseActionFunctionWithOneStringRef(self):
+        result = grammar.action_function.parseString('startSpeech("Um..... No, I am too shy to do that!")')
+        function_node = result[0]
+        expected_opcode = opcodes.actionOpcodesLookup['startSpeech']
+        self.assertEqual(expected_opcode, function_node.opcode)
+        self.assertEqual(1, len(function_node.arguments))
+        argument_node = function_node.arguments[0]
+        self.assertEqual(argtypes.STRING_REF, argument_node.arg_type)
+        self.assertEqual(0x00, argument_node.value)
 
     def testParseActionFunctionFailures(self):
         # Too many arguments

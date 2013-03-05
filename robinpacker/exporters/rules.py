@@ -104,7 +104,7 @@ class RulesJsonExporter(object):
                     mkdir(dir_name)
                     script_fname = os.path.join(dir_name, '{}_{}.rrs'.format(base_name, obj.id))
                     logging.debug('Disassembling script data to {}'.format(script_fname))
-                    script_exporter.export(obj, script_fname)
+                    script_exporter.export(obj, script_fname, rules.strings)
                     relative_fname = os.path.basename(script_fname)
                     result = OrderedDict()
                     result['__type__'] = 'ScriptData'

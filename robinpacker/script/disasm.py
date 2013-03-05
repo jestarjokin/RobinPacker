@@ -86,7 +86,7 @@ class TreeToRulesScriptWriter(object):
     def __init__(self):
         pass
 
-    def _getArgumentString(self, argument_node):
+    def _getArgumentString(self, argument_node, string_list):
         out_str = ""
         if argument_node.arg_type == argtypes.IMMEDIATE_VALUE:
             out_str = "0x{0:02X}".format(argument_node.value)
@@ -147,18 +147,25 @@ class TreeToRulesScriptWriter(object):
         elif argument_node.arg_type == argtypes.COMPUTE_OPERATION:
             comp = argument_node.value
             out_str = "{0:c}".format(comp)
+        elif argument_node.arg_type == argtypes.STRING_REF:
+            if argument_node.value >= len(string_list):
+                logging.warn('Script attempted to look up an unknown string index: {}',format(argument_node.value))
+                out_str = "0x{0:02X}".format(argument_node.value)
+            else:
+                str_val = string_list[argument_node.value]
+                out_str = '"{}"'.format(str_val.replace('"', '\\"'))
         return out_str
 
-    def _convert_function_call(self, function_node, output_file):
+    def _convert_function_call(self, function_node, output_file, string_list):
         output_file.write(function_node.opcode.name)
         output_file.write("(")
         for i, argument_node in enumerate(function_node.arguments):
-            output_file.write(self._getArgumentString(argument_node))
+            output_file.write(self._getArgumentString(argument_node, string_list))
             if i < len(function_node.arguments) - 1:
                 output_file.write(", ")
         output_file.write(")")
 
-    def write_tree_to_file(self, tree, output_file):
+    def write_tree_to_file(self, tree, output_file, string_list):
         for rule in tree.rules:
             output_file.write("rule \"{}\"\n".format(rule.name))
             if len(rule.conditions):
@@ -167,7 +174,7 @@ class TreeToRulesScriptWriter(object):
                 output_file.write("    ")
                 if conditional_node.negated:
                     output_file.write("not ")
-                self._convert_function_call(conditional_node.function, output_file)
+                self._convert_function_call(conditional_node.function, output_file, string_list)
                 if i < len(rule.conditions) - 1:
                     output_file.write(" and")
                 output_file.write("\n")
@@ -177,17 +184,17 @@ class TreeToRulesScriptWriter(object):
                 output_file.write("  always\n")
             for function_node in rule.actions:
                 output_file.write("    ")
-                self._convert_function_call(function_node, output_file)
+                self._convert_function_call(function_node, output_file, string_list)
                 output_file.write("\n")
             output_file.write("end\n\n")
 
 
-def disassemble(script_byte_string, output_file, script_base_name):
+def disassemble(script_byte_string, output_file, script_base_name, stringList):
     """
     The input script should be a string of bytes.
     """
     root_node = BytecodeToTreeConverter().convert(script_byte_string, script_base_name)
-    TreeToRulesScriptWriter().write_tree_to_file(root_node, output_file)
+    TreeToRulesScriptWriter().write_tree_to_file(root_node, output_file, stringList)
 
 def debug_disassemble(script_byte_string, output_file, script_base_name):
     """

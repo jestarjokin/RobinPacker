@@ -77,7 +77,7 @@ def define_point_arg():
     point_arg = oneOf(funky_values) | rules_buffer_2_arg | character_pos_arg | rules_buffer_12_arg | normal_point_arg
     return point_arg
 
-comment = pythonStyleComment
+comment = pythonStyleComment.copy()
 string_value = dblQuotedString.copy()
 
 integer = Word(nums)
@@ -91,12 +91,14 @@ get_value_arg = define_get_value_arg()
 compare_arg = compare_operator
 compute_arg = compute_operator
 point_arg = define_point_arg()
+string_ref = string_value.copy()
 
 argument = (immediate_arg |
     get_value_arg |
     compare_arg |
     compute_arg |
-    point_arg
+    point_arg |
+    string_ref
 )
 
 arguments = delimitedList(argument)
@@ -130,6 +132,7 @@ get_value_arg.setParseAction(actions.parse_get_value_arg)
 compare_arg.setParseAction(actions.parse_compare_arg)
 compute_arg.setParseAction(actions.parse_compute_arg)
 point_arg.setParseAction(actions.parse_point_arg)
+string_ref.setParseAction(actions.parse_string_ref)
 action_function.setParseAction(actions.parse_action_function)
 conditional.setParseAction(actions.parse_conditional)
 rule.setParseAction(actions.parse_rule)

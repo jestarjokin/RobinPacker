@@ -4,7 +4,9 @@ import robinpacker.script.opcodes as opcodes
 from robinpacker.util import RobinScriptError
 
 def parse_string(toks):
-    return toks[0][1:-1] # strip leading/trailing quote marks
+    val = toks[0][1:-1] # strip leading/trailing quote marks
+    val = val.replace('\\"', '"') # replace escaped quote marks with normal quote marks
+    return val
 
 def parse_int(toks):
     val = int(toks[0])
@@ -56,6 +58,14 @@ def parse_compute_arg(toks):
     arg_node = ast.ArgumentNode()
     arg_node.arg_type = argtypes.COMPUTE_OPERATION
     arg_node.value = value
+    return arg_node
+
+def parse_string_ref(toks):
+    value = parse_string(toks)
+    arg_node = ast.ArgumentNode()
+    arg_node.arg_type = argtypes.STRING_REF
+    arg_node.value = value
+    # TODO: if we haven't seen this string before, add it to our string table. Return the index as the arg value.
     return arg_node
 
 def parse_point_arg(toks):

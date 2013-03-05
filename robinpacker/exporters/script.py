@@ -8,7 +8,7 @@ class ScriptExporter(object):
     def __init__(self):
         pass
 
-    def export(self, scriptData, output_file_name):
+    def export(self, script_data, output_file_name, string_list):
         with file(output_file_name, 'w') as output_file:
             script_base_name = os.path.splitext(os.path.basename(output_file_name))[0]
-            disasm.disassemble(scriptData.data, output_file, script_base_name)
+            disasm.disassemble(script_data.data, output_file, script_base_name, string_list)
