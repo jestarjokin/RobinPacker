@@ -6,6 +6,7 @@ except ImportError:
 import robinpacker.script.parser.parser as parser
 from robinpacker.util import pack
 
+
 class RobinRulesCompiler(object):
     def __init__(self):
         pass
@@ -52,6 +53,6 @@ def compile_tree_to_string(root_node):
     compiler = RobinRulesCompiler()
     return compiler.compile_to_string(root_node)
 
-def compile_to_string(text_script_string):
-    root_node = parser.parse_string(text_script_string)
+def compile_to_string(text_script_string, external_parser_context):
+    root_node = parser.parse_string(text_script_string, external_parser_context)
     return compile_tree_to_string(root_node)

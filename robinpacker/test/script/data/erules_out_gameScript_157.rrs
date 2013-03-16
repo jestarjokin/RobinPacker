@@ -3,7 +3,7 @@ rule "erules_out_gameScript_157-rule-01"
     CurrentCharacterVar1Equals(0x00)
   then
     callScript(0x19, characterIndex)
-    startSpeechIfMute(0x15B)
+    startSpeechIfMute("Oh my god! I'm off!!!")
     setCurrentScriptCharacterPos(_vm->_rulesBuffer12Pos3[23])
     sub17AE1(0x4E)
     IncCurrentCharacterVar1()

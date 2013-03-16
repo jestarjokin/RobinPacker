@@ -10,9 +10,11 @@ from robinpacker.structs.rules import RulesData
 from robinpacker.structs.rect import RectData
 from robinpacker.structs.raw import RawData
 from robinpacker.structs.script import ScriptData
+from robinpacker.structs.parser import ParserContext, StringTable
 
 class RulesJsonImporter(object):
     def importFile(self, json_file_name):
+        external_files = []
         def decode_objects(dct):
             try:
                 type_val = dct['__type__']
@@ -76,20 +78,32 @@ class RulesJsonImporter(object):
                 base_name = dct['path']
                 path_name = os.path.split(json_file_name)[0]
                 raw_fname = os.path.join(path_name, base_name)
-                with file(raw_fname, 'rb') as raw_file:
-                    data = raw_file.read()
-                return RawData(id, data)
+                raw_data = RawData(id, None) # Data will be populated later
+                external_files.append(
+                    (raw_data, raw_fname)
+                )
+                return raw_data
             elif type_val == 'ScriptData':
                 id = dct['id']
                 base_name = dct['path']
                 path_name = os.path.split(json_file_name)[0]
                 script_fname = os.path.join(path_name, 'scripts', base_name)
-                with file(script_fname, 'rb') as script_file:
-                    data = script_file.read()
-                data = compiler.compile_to_string(data)
-                return ScriptData(id, data)
+                script_data = ScriptData(id, None) # Data will be populated later
+                external_files.append(
+                    (script_data, script_fname)
+                )
+                return script_data
+
         with file(json_file_name, 'r') as json_file:
             rules = json.load(json_file, object_hook=decode_objects)
+
+        # Process external files after the main JSON. (ugly)
+        external_parser_context = ParserContext(rules.strings)
+        for obj, fname in external_files:
+            with file(fname, 'rb') as ext_file:
+                data = ext_file.read()
+            if isinstance(obj, ScriptData): # yuck
+                data = compiler.compile_to_string(data, external_parser_context)
+            obj.data = data
+
         return rules
-
-

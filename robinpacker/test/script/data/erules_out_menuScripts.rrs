@@ -84,7 +84,7 @@ rule "erules_out_menuScripts-rule-02"
   when
     checkLastInterfaceHotspotIndexMenu13(0x12)
   then
-    displayVGAFile(0x162)
+    displayVGAFile("PAUSE.GFX")
     displayCharacterStatBar(val(0x03), 0x0E, 0x2B, 0xFF, 0x7C, 0x48)
     displayCharacterStatBar(val(0x03), 0x15, 0x2B, 0x28, 0x7C, 0x5F)
     displayCharacterStatBar(val(0x03), 0x0D, 0x2B, 0xC8, 0x7C, 0x76)
@@ -102,8 +102,8 @@ rule "erules_out_menuScripts-rule-03"
     not CompareGameVariables(_selectedCharacterId, val(0x03)) and
     not checkLastInterfaceHotspotIndexMenu13(0x0B)
   then
-    displayVGAFile(0x4F)
-    startSpeechWithoutSpeeker(0x163)
+    displayVGAFile("GALLOWS.GFX")
+    startSpeechWithoutSpeaker("[[This poor devil is beyond even Robin Hood's help!]It is too late to help this poor creature!]A brave attempt, but once they're dead, there's little you can do!")
     displayTitleScreen(0x3C)
     initGameAreaDisplay()
 end
@@ -114,7 +114,7 @@ rule "erules_out_menuScripts-rule-04"
     compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x58) and
     compareCharacterVariable(_selectedCharacterId, 0x01, ==, 0x04)
   then
-    startSpeech(0x164)
+    startSpeech("Um..... No, I am too shy to do that!")
 end
 
 rule "erules_out_menuScripts-rule-05"
@@ -123,7 +123,7 @@ rule "erules_out_menuScripts-rule-05"
     compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x58) and
     compareCharacterVariable(_selectedCharacterId, 0x01, ==, 0x04)
   then
-    startSpeech(0x164)
+    startSpeech("Um..... No, I am too shy to do that!")
 end
 
 rule "erules_out_menuScripts-rule-06"
@@ -132,7 +132,7 @@ rule "erules_out_menuScripts-rule-06"
     compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x58) and
     compareCharacterVariable(_selectedCharacterId, 0x01, ==, 0x04)
   then
-    startSpeech(0x164)
+    startSpeech("Um..... No, I am too shy to do that!")
 end
 
 rule "erules_out_menuScripts-rule-07"
@@ -141,7 +141,7 @@ rule "erules_out_menuScripts-rule-07"
     CompareGameVariables(_selectedCharacterId, val(0x05)) and
     CurrentCharacterVar0Equals(0x2C)
   then
-    startSpeech(0x165)
+    startSpeech("If it's a fight you want, then a fight you shall have!")
     enableCurrentCharacterScript(0x0A)
 end
 
@@ -151,7 +151,7 @@ rule "erules_out_menuScripts-rule-08"
     CompareGameVariables(_selectedCharacterId, val(0x05)) and
     CurrentCharacterVar0Equals(0x2C)
   then
-    startSpeech(0x6C)
+    startSpeech("Nay sir, I see no reason to fight thee.")
     disableInterfaceHotspot(0x04, 0x1E)
     ComputeCharacterVariable(val(0x01), 0x14, -, 0x1E)
     enableCurrentCharacterScript(0x67)
@@ -167,7 +167,7 @@ rule "erules_out_menuScripts-rule-09"
     compareCharacterVariable(val(0x05), 0x00, ==, 0x2B)
   then
     disableInterfaceHotspot(0x01, 0x0A)
-    startSpeech(0x166)
+    startSpeech("Who is this that dares to stare at Robin Hood?!")
     setCurrentCharacterVar6(val(0x05))
     enableCurrentCharacterScript(0x1E)
 end
@@ -179,7 +179,7 @@ rule "erules_out_menuScripts-rule-10"
     CurrentCharacterVar0Equals(0x2C)
   then
     disableInterfaceHotspot(0x01, 0x32)
-    startSpeech(0x165)
+    startSpeech("If it's a fight you want, then a fight you shall have!")
     enableCurrentCharacterScript(0x0A)
 end
 
@@ -190,7 +190,7 @@ rule "erules_out_menuScripts-rule-11"
     CurrentCharacterVar0Equals(0x2C)
   then
     disableInterfaceHotspot(0x05, 0x32)
-    startSpeech(0x167)
+    startSpeech("Here Sir, have this money as a token that I mean thee no harm.")
     sub17FDD(0x17)
     sub17CB9(0x0C, val(0x05), 0x5D)
     setCurrentCharacterVar2(0x1E)
@@ -203,7 +203,7 @@ rule "erules_out_menuScripts-rule-12"
     CurrentCharacterVar0Equals(0x09)
   then
     disableInterfaceHotspot(0x04, 0x1E)
-    getComputedVariantSpeech(characterIndex, 0x14, 0x80, 0x168)
+    getComputedVariantSpeech(characterIndex, 0x14, 0x80, "[Help me someone!!!!!] Down with the Norman pigs!")
 end
 
 rule "erules_out_menuScripts-rule-13"
@@ -216,7 +216,7 @@ rule "erules_out_menuScripts-rule-13"
     sub17CB9(0x01, val(0x05), 0x44)
     sub17CB9(0x01, val(0x06), 0x44)
     sub17CB9(0x01, val(0x04), 0x44)
-    startSpeechIfSoundOff(0x90)
+    startSpeechIfSoundOff("Toot! Toot!")
     sub186E5_snd(characterIndex, 0x1C)
 end
 
@@ -227,7 +227,7 @@ rule "erules_out_menuScripts-rule-14"
     sub174D8(_selectedCharacterId, val(0x03))
   then
     disableInterfaceHotspot(0x01, 0x32)
-    startSpeechIfMute(0x169)
+    startSpeechIfMute("[You're not taking me anywhere!]Get your hands off me, pig!")
     sub17C76(val(0x03))
     setCurrentCharacterVar6(_selectedCharacterId)
     enableCurrentCharacterScript(0x3A)
@@ -317,7 +317,7 @@ rule "erules_out_menuScripts-rule-24"
     compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x02) and
     not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
   then
-    startSpeech(0x16A)
+    startSpeech("[I think I will follow him for a while.]I wonder where he is going.")
     setCurrentCharacterVar6(_selectedCharacterId)
     enableCurrentCharacterScript(0x1E)
 end
@@ -329,7 +329,7 @@ rule "erules_out_menuScripts-rule-25"
     compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x03) and
     not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
   then
-    startSpeech(0x16B)
+    startSpeech("[The sight of a pretty maid would cheer me greatly. I shall follow her.]I wonder where she is going.")
     setCurrentCharacterVar6(_selectedCharacterId)
     enableCurrentCharacterScript(0x1E)
 end
@@ -341,7 +341,7 @@ rule "erules_out_menuScripts-rule-26"
     compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x01) and
     not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
   then
-    startSpeech(0x16C)
+    startSpeech("I think I'll follow that animal.")
     setCurrentCharacterVar6(_selectedCharacterId)
     enableCurrentCharacterScript(0x1E)
 end
@@ -353,7 +353,7 @@ rule "erules_out_menuScripts-rule-27"
     compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x02) and
     not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
   then
-    startSpeech(0x16A)
+    startSpeech("[I think I will follow him for a while.]I wonder where he is going.")
     setCurrentCharacterVar6(_selectedCharacterId)
     enableCurrentCharacterScript(0x1E)
 end
@@ -365,7 +365,7 @@ rule "erules_out_menuScripts-rule-28"
     compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x03) and
     not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
   then
-    startSpeech(0x16B)
+    startSpeech("[The sight of a pretty maid would cheer me greatly. I shall follow her.]I wonder where she is going.")
     setCurrentCharacterVar6(_selectedCharacterId)
     enableCurrentCharacterScript(0x1E)
 end
@@ -377,7 +377,7 @@ rule "erules_out_menuScripts-rule-29"
     compareCharacterVariable(_selectedCharacterId, 0x0C, ==, 0x01) and
     not compareCharacterVariable(_selectedCharacterId, 0x00, ==, 0x06)
   then
-    startSpeech(0x16D)
+    startSpeech("Where is that animal going?")
     setCurrentCharacterVar6(_selectedCharacterId)
     enableCurrentCharacterScript(0x1E)
 end
@@ -511,7 +511,7 @@ rule "erules_out_menuScripts-rule-43"
     setCurrentCharacterVar6(_selectedCharacterId)
     turnCharacterTowardsAnother(_currentCharacterVariables[6])
     sub17FDD(0x13)
-    getRotatingVariantSpeech(0x16E, 0x00)
+    getRotatingVariantSpeech("[Go forth, my merry fellow, and find a wealthy man, that ye might relieve him of his riches for our cause!]Go ye forth sir, and find a man to rob. Bring the spoils back to me, that we might profit from them!", 0x00)
     sub17CB9(0x0C, _currentCharacterVariables[6], 0x77)
     enableCurrentCharacterScript(0x1E)
 end
@@ -526,7 +526,7 @@ rule "erules_out_menuScripts-rule-44"
     setCurrentCharacterVar6(_selectedCharacterId)
     turnCharacterTowardsAnother(_currentCharacterVariables[6])
     sub17FDD(0x13)
-    getRotatingVariantSpeech(0x16F, 0x00)
+    getRotatingVariantSpeech("['Tis time you earned your keep, Sir. Go ye forth and spill the blood of our enemy!]Methinks 'tis time for heads to roll! Go forth and rid this land of another filthy Norman swine!", 0x00)
     sub17CB9(0x0C, _currentCharacterVariables[6], 0x78)
     enableCurrentCharacterScript(0x1E)
 end
@@ -734,7 +734,7 @@ rule "erules_out_menuScripts-rule-64"
   then
     disableInterfaceHotspot(0x09, 0x1E)
     sub186E5_snd(characterIndex, 0x26)
-    displayVGAFile(0x170)
+    displayVGAFile("SOUL.GFX")
     displayCharacterStatBar(_selectedCharacterId, 0x0E, 0x2B, 0xFF, 0x7C, 0x03)
     displayCharacterStatBar(_selectedCharacterId, 0x15, 0x2B, 0x28, 0x7C, 0x1A)
     displayCharacterStatBar(_selectedCharacterId, 0x0F, 0x2B, 0xFF, 0x7C, 0x31)
@@ -760,7 +760,7 @@ rule "erules_out_menuScripts-rule-65"
     compareCharacterVariable(_selectedCharacterId, 0x00, >, 0x06)
   then
     disableInterfaceHotspot(0x01, 0x32)
-    startSpeechIfMute(0x171)
+    startSpeechIfMute("[[Take this!]Have at ye knave!]Have a taste of my knuckles!")
     setCurrentCharacterVar6(_selectedCharacterId)
     sub17CB9(0x05, _selectedCharacterId, 0x83)
     enableCurrentCharacterScript(0x3A)

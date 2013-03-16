@@ -7,116 +7,121 @@ except ImportError:
 import unittest
 
 import robinpacker.script.ast.elements as ast
-import robinpacker.script.parser.grammar as grammar
+import robinpacker.script.parser.parser as parser_module
 import robinpacker.script.opcodes as opcodes
 import robinpacker.script.argtypes as argtypes
+from robinpacker.structs.parser import *
 from robinpacker.util import RobinScriptError
 
 class GrammarTest(unittest.TestCase):
+    def setUp(self):
+        parser_context = ParserContext([])
+        self.parser = parser_module.RobinScriptParser(parser_context)
+    
     def testParseString(self):
-        result = grammar.string_value.parseString('"rule_52 is pretty \\"cool\\""')
+        result = self.parser.grammar.string_value.parseString('"rule_52 is pretty \\"cool\\""')
         self.assertEqual('rule_52 is pretty "cool"', result[0])
 
     def testParseInteger(self):
-        result = grammar.integer.parseString('52')
+        result = self.parser.grammar.integer.parseString('52')
         self.assertEqual(52, result[0])
 
     def testParseHexNumber(self):
-        result = grammar.hex_number.parseString('0xA5')
+        result = self.parser.grammar.hex_number.parseString('0xA5')
         self.assertEqual(0xA5, result[0])
-        result = grammar.hex_number.parseString('0x99')
+        result = self.parser.grammar.hex_number.parseString('0x99')
         self.assertEqual(0x99, result[0])
-        result = grammar.hex_number.parseString('0x2B')
+        result = self.parser.grammar.hex_number.parseString('0x2B')
         self.assertEqual(0x2B, result[0])
 
     def testParseNumber(self):
-        result = grammar.number.parseString('0xA5')
+        result = self.parser.grammar.number.parseString('0xA5')
         self.assertEqual(0xA5, result[0])
-        result = grammar.number.parseString('52')
+        result = self.parser.grammar.number.parseString('52')
         self.assertEqual(52, result[0])
 
     def testParseImmediateArg(self):
-        result = grammar.immediate_arg.parseString('0xA5')
+        result = self.parser.grammar.immediate_arg.parseString('0xA5')
         arg_node = result[0]
         self.assertEqual(ast.ArgumentNode, type(arg_node))
         self.assertEqual(argtypes.IMMEDIATE_VALUE, arg_node.arg_type)
         self.assertEqual(0xA5, arg_node.value)
-        result = grammar.immediate_arg.parseString('13')
+        result = self.parser.grammar.immediate_arg.parseString('13')
         arg_node = result[0]
         self.assertEqual(ast.ArgumentNode, type(arg_node))
         self.assertEqual(argtypes.IMMEDIATE_VALUE, arg_node.arg_type)
         self.assertEqual(13, arg_node.value)
 
     def testParseMultipleImmediateArguments(self):
-        result = grammar.arguments.parseString('0xA5, 52')
+        result = self.parser.grammar.arguments.parseString('0xA5, 52')
         self.assertEqual(2, len(result))
         self.assertEqual(ast.ArgumentNode, type(result[0]))
         self.assertEqual(ast.ArgumentNode, type(result[1]))
         self.assertNotEqual(result[0].value, result[1].value)
 
     def testParseGetValueArg(self):
-        arg_node = grammar.get_value_arg.parseString('_word10804')[0]
+        arg_node = self.parser.grammar.get_value_arg.parseString('_word10804')[0]
         self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1004, arg_node.value)
-        arg_node = grammar.get_value_arg.parseString('_currentCharacterVariables[6]')[0]
+        arg_node = self.parser.grammar.get_value_arg.parseString('_currentCharacterVariables[6]')[0]
         self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1003, arg_node.value)
-        arg_node = grammar.get_value_arg.parseString('_word16F00_characterId')[0]
+        arg_node = self.parser.grammar.get_value_arg.parseString('_word16F00_characterId')[0]
         self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1002, arg_node.value)
-        arg_node = grammar.get_value_arg.parseString('characterIndex')[0]
+        arg_node = self.parser.grammar.get_value_arg.parseString('characterIndex')[0]
         self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1001, arg_node.value)
-        arg_node = grammar.get_value_arg.parseString('_selectedCharacterId')[0]
+        arg_node = self.parser.grammar.get_value_arg.parseString('_selectedCharacterId')[0]
         self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(1000, arg_node.value)
-        arg_node = grammar.get_value_arg.parseString('getValue1(0x2B00)')[0]
+        arg_node = self.parser.grammar.get_value_arg.parseString('getValue1(0x2B00)')[0]
         self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(0x2B00, arg_node.value)
-        arg_node = grammar.get_value_arg.parseString('val(0x2B)')[0]
+        arg_node = self.parser.grammar.get_value_arg.parseString('val(0x2B)')[0]
         self.assertEqual(argtypes.GET_VALUE, arg_node.arg_type)
         self.assertEqual(0x2B, arg_node.value)
 
     def testParseCompareArg(self):
-        arg_node = grammar.compare_arg.parseString('<')[0]
+        arg_node = self.parser.grammar.compare_arg.parseString('<')[0]
         self.assertEqual(argtypes.COMPARE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord('<'), arg_node.value)
-        arg_node = grammar.compare_arg.parseString('>')[0]
+        arg_node = self.parser.grammar.compare_arg.parseString('>')[0]
         self.assertEqual(argtypes.COMPARE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord('>'), arg_node.value)
-        arg_node = grammar.compare_arg.parseString('==')[0]
+        arg_node = self.parser.grammar.compare_arg.parseString('==')[0]
         self.assertEqual(argtypes.COMPARE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord('='), arg_node.value)
 
     def testParseComputeArg(self):
         input_str = '-'
-        arg_node = grammar.compute_arg.parseString(input_str)[0]
+        arg_node = self.parser.grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord(input_str), arg_node.value)
         input_str = '+'
-        arg_node = grammar.compute_arg.parseString(input_str)[0]
+        arg_node = self.parser.grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord(input_str), arg_node.value)
         input_str = '*'
-        arg_node = grammar.compute_arg.parseString(input_str)[0]
+        arg_node = self.parser.grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord(input_str), arg_node.value)
         input_str = '/'
-        arg_node = grammar.compute_arg.parseString(input_str)[0]
+        arg_node = self.parser.grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord(input_str), arg_node.value)
         input_str = '%'
-        arg_node = grammar.compute_arg.parseString(input_str)[0]
+        arg_node = self.parser.grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord(input_str), arg_node.value)
         input_str = '='
-        arg_node = grammar.compute_arg.parseString(input_str)[0]
+        arg_node = self.parser.grammar.compute_arg.parseString(input_str)[0]
         self.assertEqual(argtypes.COMPUTE_OPERATION, arg_node.arg_type)
         self.assertEqual(ord(input_str), arg_node.value)
 
     def testParsePointArg(self):
         def compare(input_str, expected_value):
-            arg_node = grammar.point_arg.parseString(input_str)[0]
+            arg_node = self.parser.grammar.point_arg.parseString(input_str)[0]
             self.assertEqual(argtypes.POINT_VALUE, arg_node.arg_type)
             self.assertEqual(expected_value, arg_node.value)
         compare('(_rulesBuffer2_13[currentCharacter], _rulesBuffer2_14[currentCharacter])', 0xFF00)
@@ -133,21 +138,21 @@ class GrammarTest(unittest.TestCase):
         compare('(56, 78)', 0x384E)
 
     def testParseInvalidPointArg(self):
-        self.assertRaises(RobinScriptError, grammar.point_arg.parseString,
+        self.assertRaises(RobinScriptError, self.parser.grammar.point_arg.parseString,
             '(characterPositionTileX[0x43], characterPositionTileY[0x53])'
         )
-        self.assertRaises(RobinScriptError, grammar.point_arg.parseString,
+        self.assertRaises(RobinScriptError, self.parser.grammar.point_arg.parseString,
             '(56, 278)'
         )
-        self.assertRaises(RobinScriptError, grammar.point_arg.parseString,
+        self.assertRaises(RobinScriptError, self.parser.grammar.point_arg.parseString,
             '(characterPositionTileX[33], characterPositionTileY[0x20])'
         )
-        self.assertRaises(RobinScriptError, grammar.point_arg.parseString,
+        self.assertRaises(RobinScriptError, self.parser.grammar.point_arg.parseString,
             '_vm->_rulesBuffer12Pos3[0x54]'
         )
 
     def testParseActionFunctionWithImmediateHexArgument(self):
-        result = grammar.action_function.parseString('sub18213(0xA5)')
+        result = self.parser.grammar.action_function.parseString('sub18213(0xA5)')
         function_node = result[0]
         expected_opcode = opcodes.actionOpcodesLookup['sub18213']
         self.assertEqual(expected_opcode, function_node.opcode)
@@ -157,7 +162,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(0xA5, argument_node.value)
 
     def testParseActionFunctionWithTwoImmediateHexArguments(self):
-        result = grammar.action_function.parseString('changeCurrentCharacterSprite(0x64, 0x0A)')
+        result = self.parser.grammar.action_function.parseString('changeCurrentCharacterSprite(0x64, 0x0A)')
         function_node = result[0]
         expected_opcode = opcodes.actionOpcodesLookup['changeCurrentCharacterSprite']
         self.assertEqual(expected_opcode, function_node.opcode)
@@ -170,7 +175,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(0x0A, argument_node.value)
 
     def testParseActionFunctionWithOneImmediateArgAndOneGetValueArg(self):
-        result = grammar.action_function.parseString('callScript(0x01, characterIndex)')
+        result = self.parser.grammar.action_function.parseString('callScript(0x01, characterIndex)')
         function_node = result[0]
         expected_opcode = opcodes.actionOpcodesLookup['callScript']
         self.assertEqual(expected_opcode, function_node.opcode)
@@ -183,7 +188,9 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(1001, argument_node.value)
 
     def testParseActionFunctionWithOneStringRef(self):
-        result = grammar.action_function.parseString('startSpeech("Um..... No, I am too shy to do that!")')
+        string_val = 'Um..... No, I am too shy to do that!'
+        self.parser.external_context.string_table.append(string_val)
+        result = self.parser.grammar.action_function.parseString('startSpeech("{}")'.format(string_val))
         function_node = result[0]
         expected_opcode = opcodes.actionOpcodesLookup['startSpeech']
         self.assertEqual(expected_opcode, function_node.opcode)
@@ -194,20 +201,20 @@ class GrammarTest(unittest.TestCase):
 
     def testParseActionFunctionFailures(self):
         # Too many arguments
-        self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'sub18213(0xA5, 0x12)')
+        self.assertRaises(RobinScriptError, self.parser.grammar.action_function.parseString, 'sub18213(0xA5, 0x12)')
         # Too few arguments
-        self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'sub18213()')
+        self.assertRaises(RobinScriptError, self.parser.grammar.action_function.parseString, 'sub18213()')
         # Unknown function name
-        self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'notAKnownFunction(0xA5)')
+        self.assertRaises(RobinScriptError, self.parser.grammar.action_function.parseString, 'notAKnownFunction(0xA5)')
         # Value is too large (normal)
-        self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'sub18213(65536)')
+        self.assertRaises(RobinScriptError, self.parser.grammar.action_function.parseString, 'sub18213(65536)')
         # Value is too large (hex)
-        self.assertRaises(ParseException, grammar.action_function.parseString, 'sub18213(0x10000)')
+        self.assertRaises(ParseException, self.parser.grammar.action_function.parseString, 'sub18213(0x10000)')
         # Invalid argument type
-        self.assertRaises(RobinScriptError, grammar.action_function.parseString, 'setCurrentCharacterVar6(0x1B)')
+        self.assertRaises(RobinScriptError, self.parser.grammar.action_function.parseString, 'setCurrentCharacterVar6(0x1B)')
 
     def testParseConditionalWithImmediateHexArgument(self):
-        result = grammar.conditional.parseString('compWord16EFE(0x27)')
+        result = self.parser.grammar.conditional.parseString('compWord16EFE(0x27)')
         conditional_node = result[0]
         self.assertEqual(False, conditional_node.negated)
         expected_opcode = opcodes.conditionalOpcodesLookup['compWord16EFE']
@@ -219,7 +226,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(0x27, argument_node.value)
 
     def testParseNegatedConditionalWithImmediateHexArgument(self):
-        result = grammar.conditional.parseString('not compWord16EFE(0x27)')
+        result = self.parser.grammar.conditional.parseString('not compWord16EFE(0x27)')
         conditional_node = result[0]
         self.assertEqual(True, conditional_node.negated)
         expected_opcode = opcodes.conditionalOpcodesLookup['compWord16EFE']
@@ -231,7 +238,7 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(0x27, argument_node.value)
 
     def testParseMultipleConditionals(self):
-        result = grammar.multiple_conditionals.parseString('CurrentCharacterVar0Equals(0x01) and sub17782(0x2B)')
+        result = self.parser.grammar.multiple_conditionals.parseString('CurrentCharacterVar0Equals(0x01) and sub17782(0x2B)')
         conditionals = result['conditionals']
         self.assertEqual(2, len(conditionals))
         self.assertEqual(ast.ConditionalNode, type(conditionals[0]))
@@ -246,7 +253,7 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x00)
             end
         """
-        result = grammar.rule.parseString(input_str)
+        result = self.parser.grammar.rule.parseString(input_str)
         rule_node = result[0]
         self.assertEqual('erulesout_gameScript_22-rule-06', rule_node.name)
         self.assertEqual(1, len(rule_node.conditions))
@@ -266,7 +273,7 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x00)
             end
         """
-        result = grammar.rule.parseString(input_str)
+        result = self.parser.grammar.rule.parseString(input_str)
         rule_node = result[0]
         self.assertEqual('erulesout_gameScript_22-rule-06', rule_node.name)
         self.assertEqual(2, len(rule_node.conditions))
@@ -290,7 +297,7 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x1E)
             end
         """
-        result = grammar.rule.parseString(input_str)
+        result = self.parser.grammar.rule.parseString(input_str)
         rule_node = result[0]
         self.assertEqual('erules_out_gameScript_8-rule-13', rule_node.name)
         self.assertEqual(3, len(rule_node.conditions))
@@ -309,7 +316,7 @@ class GrammarTest(unittest.TestCase):
                 callScript(0x01, characterIndex)
             end
         """
-        result = grammar.rule.parseString(input_str)
+        result = self.parser.grammar.rule.parseString(input_str)
         self.assertEqual(1, len(result))
         rule_node = result[0]
         self.assertEqual(0, len(rule_node.conditions))
@@ -334,7 +341,7 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x01)
             end
         """
-        result = grammar.root.parseString(input_str)
+        result = self.parser.grammar.root.parseString(input_str)
         root_node = result[0]
         self.assertEqual(2, len(root_node.rules))
         self.assertEqual(ast.RuleNode, type(root_node.rules[0]))
@@ -351,8 +358,7 @@ class GrammarTest(unittest.TestCase):
                 enableCurrentCharacterScript(0x00)
             end
         """
-        result = grammar.root.parseString(input_str)
-        print result
+        result = self.parser.grammar.root.parseString(input_str)
         root_node = result[0]
         self.assertEqual(1, len(root_node.rules))
         rule_node = root_node.rules[0]
@@ -360,9 +366,11 @@ class GrammarTest(unittest.TestCase):
         self.assertEqual(1, len(rule_node.conditions))
 
     def testParseMegaScript(self):
-        script = MegaScriptCreator().create_script()
-        #print script
-        grammar.root.parseString(script) # Just check that parsing doesn't throw an exception
+        script_creator = MegaScriptCreator()
+        script, string_list = script_creator.create_script()
+        string_table = StringTable(string_list)
+        self.parser.external_context.string_table = string_table
+        self.parser.parseString(script) # Just check that parsing doesn't throw an exception
 
 
 class MegaScriptCreator(object):
@@ -374,6 +382,8 @@ class MegaScriptCreator(object):
         self.compute_operation_i = 0
         self.compare_operation_i = 0
         self.point_arg_i = 0
+        self.string_ref_i = 0
+        self.string_table = []
         self.negated = False
 
     def _getArgumentString(self, arg_type):
@@ -440,6 +450,11 @@ class MegaScriptCreator(object):
             values = ['-', '+', '*', '/', '%', '=']
             out_str = values[self.compute_operation_i % len(values)]
             self.compute_operation_i += 1
+        elif arg_type == argtypes.STRING_REF:
+            out_str = 'random_string_{}'.format(self.string_ref_i) # TODO: investigate why this passes
+            self.string_table.append(out_str)
+            out_str = '"{}"'.format(out_str)
+            self.string_ref_i += 1
         return out_str
 
     def _write_function_call(self, opcode, output):
@@ -467,4 +482,4 @@ class MegaScriptCreator(object):
             self._write_function_call(opcode, output)
             output.write("\n")
         output.write('end\n')
-        return output.getvalue()
+        return (output.getvalue(), self.string_table)

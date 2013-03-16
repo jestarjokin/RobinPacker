@@ -12,6 +12,7 @@ import robinpacker.structs.raw
 import robinpacker.structs.rect
 import robinpacker.structs.rules
 import robinpacker.structs.script
+from robinpacker.structs.parser import StringTable
 from robinpacker.util import mkdir
 
 class RulesJsonExporter(object):
@@ -19,6 +20,7 @@ class RulesJsonExporter(object):
         self.dump_scripts = dump_scripts
 
     def export(self, rules, json_file_name):
+        string_table = StringTable(rules.strings)
         script_exporter = ScriptExporter()
         this = self
         class RulesJsonEncoder(json.JSONEncoder):
@@ -104,7 +106,7 @@ class RulesJsonExporter(object):
                     mkdir(dir_name)
                     script_fname = os.path.join(dir_name, '{}_{}.rrs'.format(base_name, obj.id))
                     logging.debug('Disassembling script data to {}'.format(script_fname))
-                    script_exporter.export(obj, script_fname, rules.strings)
+                    script_exporter.export(obj, script_fname, string_table)
                     relative_fname = os.path.basename(script_fname)
                     result = OrderedDict()
                     result['__type__'] = 'ScriptData'
@@ -112,6 +114,7 @@ class RulesJsonExporter(object):
                     result['path'] = relative_fname
                     return result
                 return super(RulesJsonEncoder, self).default(obj)
+        mkdir(os.path.dirname(json_file_name))
         with file(json_file_name, 'w') as json_file:
             json.dump(rules, json_file, cls=RulesJsonEncoder, indent=1)
 

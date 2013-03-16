@@ -1,6 +1,8 @@
 #! /usr/bin/python
 
-from robinpacker.util import pack
+import os.path
+
+from robinpacker.util import pack, mkdir
 
 packedStringLookup = ['I am ', 'You are ', 'you are ', 'hou art ', 'in the ', 'is the ', 'is a ', 'in a ', 'To the ',
                       'to the ', 'by ', 'going ', 'here ', 'The', 'the', 'and ', 'some ', 'build', 'not ', 'way', 'I ',
@@ -13,6 +15,8 @@ packedStringLookup = ['I am ', 'You are ', 'you are ', 'hou art ', 'in the ', 'i
 
 class RulesBinaryPacker(object):
     def pack(self, rules, fname):
+        mkdir(os.path.dirname(fname))
+
         with file(fname, 'wb') as rfile:
             # Header
             rfile.write('\x00\x00')

@@ -10,7 +10,7 @@ conditionalOpcodes = (
     Opcode(4, 'CompareLastRandomValue', (argtypes.COMPARE_OPERATION, argtypes.IMMEDIATE_VALUE)),
     Opcode(5, 'getRandom', (argtypes.IMMEDIATE_VALUE,)),
     Opcode(6, 'for', (argtypes.IMMEDIATE_VALUE, argtypes.IMMEDIATE_VALUE)),
-    Opcode(7, 'compCurrentSpeechId', (argtypes.IMMEDIATE_VALUE,)),
+    Opcode(7, 'compCurrentSpeechId', (argtypes.STRING_REF,)),
     Opcode(8, 'checkSaveFlag', ()),
     Opcode(9, 'compScriptForVal', (argtypes.COMPARE_OPERATION, argtypes.IMMEDIATE_VALUE)),
     Opcode(10, 'sub174D8', (argtypes.GET_VALUE, argtypes.GET_VALUE)),

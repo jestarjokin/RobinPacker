@@ -14,7 +14,7 @@ rule "erules_out_gameScript_89-rule-02"
     CurrentCharacterVar1Equals(0x01) and
     CurrentCharacterVar2Equals1()
   then
-    getRotatingVariantSpeech(0xCB, 0x00)
+    getRotatingVariantSpeech("[[They are all rich, successful and handsome men; except Robin of Loxley!]Pig-swill is at least attractive to pigs!]Three: one to tap him on the shoulder, and two to shout Boo!", 0x00)
     enableCurrentCharacterScript(0x6A)
 end
 
