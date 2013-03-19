@@ -14,6 +14,8 @@ from importers.gfx import GfxPngImporter, GfxJsonImporter
 from packers.gfx import GfxBinaryPacker
 from unpackers.gfx import GfxBinaryUnpacker
 from structs.gfx import GfxMetadata
+from unpackers.simple import ArrayBinaryUnpacker
+from exporters.simple import ArrayJsonExporter
 
 DEFAULT_GFX_METADATA = GfxMetadata(0xFA00, True, 320, 200)
 GFX_METADATA_LOOKUP = {
@@ -59,6 +61,8 @@ class FileDispatcher(object):
             elif ext in ('.gfx', '.vga', '.png', '.raw'):
                 self.process_gfx(input_fname, output_fname, options)
             # TODO: support for isomap.dta
+            elif ext in ('.dta'):
+                self.process_dta(input_fname, output_fname, options)
             # TODO: support for sound data
             else:
                 logging.error('Unrecognised extension: %s' % ext)
@@ -111,3 +115,12 @@ class FileDispatcher(object):
         else:
             importer = ProjectImporter()
             importer.importDirectory(in_dir, out_dir, options, self)
+
+    def process_dta(self, input_fname, output_fname, options):
+        if options.unpack:
+            unpacker = ArrayBinaryUnpacker()
+            array_data = unpacker.unpack(input_fname)
+            exporter = ArrayJsonExporter()
+            exporter.export(array_data, output_fname)
+        else:
+            pass # TODO
