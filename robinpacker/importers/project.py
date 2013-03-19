@@ -8,7 +8,7 @@ class ProjectImporter(object):
     def __init__(self):
         pass
 
-    def importDirectory(self, in_dir, out_dir, options, file_dispatcher):
+    def import_directory(self, in_dir, out_dir, options, file_dispatcher):
         logging.info('Packing all game files, from {} to {}'.format(in_dir, out_dir))
         project_fname = os.path.join(in_dir, 'project.json')
         if not os.path.isfile(project_fname):

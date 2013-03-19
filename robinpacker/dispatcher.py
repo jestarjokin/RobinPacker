@@ -78,7 +78,7 @@ class FileDispatcher(object):
         elif options.pack:
             logging.info('Packing %s to %s...' % (input_fname, output_fname))
             importer = RulesJsonImporter()
-            rules = importer.importFile(input_fname)
+            rules = importer.import_file(input_fname)
             packer = RulesBinaryPacker()
             packer.pack(rules, output_fname)
         else:
@@ -102,9 +102,9 @@ class FileDispatcher(object):
         else:
             logging.info('Packing %s to %s...' % (in_fname, out_fname))
             json_importer = GfxJsonImporter()
-            gfx_data = json_importer.importFile(in_fname + '.json')
+            gfx_data = json_importer.import_file(in_fname + '.json')
             importer = GfxPngImporter()
-            gfx_data = importer.importFile(in_fname, gfx_data)
+            gfx_data = importer.import_file(in_fname, gfx_data)
             packer = GfxBinaryPacker()
             packer.pack(gfx_data, out_fname)
 
@@ -114,7 +114,7 @@ class FileDispatcher(object):
             exporter.export(in_dir, out_dir, options, self)
         else:
             importer = ProjectImporter()
-            importer.importDirectory(in_dir, out_dir, options, self)
+            importer.import_directory(in_dir, out_dir, options, self)
 
     def process_dta(self, input_fname, output_fname, options):
         if options.unpack:
@@ -123,4 +123,5 @@ class FileDispatcher(object):
             exporter = ArrayJsonExporter()
             exporter.export(array_data, output_fname)
         else:
+            # crap
             pass # TODO

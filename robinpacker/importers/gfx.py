@@ -10,7 +10,7 @@ except ImportError:
 import robinpacker.structs.gfx
 
 class GfxJsonImporter(object):
-    def importFile(self, json_file_name, gfx_data=None):
+    def import_file(self, json_file_name, gfx_data=None):
         def decode_objects(dct):
             try:
                 type_val = dct['__type__']
@@ -31,7 +31,7 @@ class GfxJsonImporter(object):
 
 
 class GfxRawImporter(object):
-    def importFile(self, input_file_name, gfx_data=None):
+    def import_file(self, input_file_name, gfx_data=None):
         if gfx_data is None:
             gfx_data = robinpacker.structs.gfx.GfxData()
         with file(input_file_name, 'rb') as raw_file:
@@ -45,7 +45,7 @@ class GfxRawImporter(object):
 
 
 class GfxPngImporter(object):
-    def importFile(self, input_file_name, gfx_data=None):
+    def import_file(self, input_file_name, gfx_data=None):
         if Image is None:
             raise Exception('The Python Imaging Library (PIL) must be installed to load PNG files.') # TODO: use a custom exception
         png_data = Image.open(input_file_name)

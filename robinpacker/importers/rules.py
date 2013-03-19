@@ -13,7 +13,7 @@ from robinpacker.structs.script import ScriptData
 from robinpacker.structs.parser import ParserContext, StringTable
 
 class RulesJsonImporter(object):
-    def importFile(self, json_file_name):
+    def import_file(self, json_file_name):
         external_files = []
         def decode_objects(dct):
             try:
