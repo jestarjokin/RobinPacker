@@ -4,6 +4,15 @@ Packs and unpacks game resources for the old DOS game, The Adventures of Robin H
 
 RobinPacker is based on work by the ScummVM team to re-implement the Robin Hood engine.
 
+# Installation
+
+* Install Python 2.7. Other versions of Python are not supported!
+* Install the following Python packages (I suggest using PIP to do so):
+** PyParsing >= 1.5.6
+** PIL (Python Imaging Library) >= 1.1.6
+* Download the source code and put it somewhere
+* Run "robinpacker.py" from the command line (see the "Usage" section for more info)
+
 # Usage
 
 To unpack all game files, pass the game directory as the first argument, and the output directory as the second argument.
@@ -155,6 +164,17 @@ One of:
 * `%`
 * `=`
 
+### String Reference
+STRING_REF
+
+This is a reference to a string value.
+
+The string value will appear in the script file; however, in the bytecode this gets
+translated to an index, to the "strings" array stored in the rules file.
+
+This means strings in the script must exactly match a string in the strings array
+in the rules file. You cannot define new strings in the script alone.
+
 ## Conditionals
 * `checkCharacterGoalPos(POINT_VALUE)`
 * `comparePos(GET_VALUE, POINT_VALUE)`
@@ -163,7 +183,7 @@ One of:
 * `CompareLastRandomValue(COMPARE_OPERATION, IMMEDIATE_VALUE)`
 * `getRandom(IMMEDIATE_VALUE)`
 * `for(IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
-* `compCurrentSpeechId(IMMEDIATE_VALUE)`
+* `compCurrentSpeechId(STRING_REF)`
 * `checkSaveFlag()`
 * `compScriptForVal(COMPARE_OPERATION, IMMEDIATE_VALUE)`
 * `sub174D8(GET_VALUE, GET_VALUE)`
@@ -210,12 +230,12 @@ One of:
 ## Actions
 * `setWord18821(GET_VALUE)`
 * `ChangeIsoMap(POINT_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
-* `startSpeech(IMMEDIATE_VALUE)`
-* `getComputedVariantSpeech(GET_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
-* `getRotatingVariantSpeech(IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
-* `startSpeechIfMute(IMMEDIATE_VALUE)`
-* `getComputedVariantSpeechIfMute(GET_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
-* `startSpeechIfSilent(IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
+* `startSpeech(STRING_REF)`
+* `getComputedVariantSpeech(GET_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, STRING_REF)`
+* `getRotatingVariantSpeech(STRING_REF, IMMEDIATE_VALUE)`
+* `startSpeechIfMute(STRING_REF)`
+* `getComputedVariantSpeechIfMute(GET_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, STRING_REF)`
+* `startSpeechIfSilent(STRING_REF, IMMEDIATE_VALUE)`
 * `ComputeCharacterVariable(GET_VALUE, IMMEDIATE_VALUE, COMPUTE_OPERATION, IMMEDIATE_VALUE)`
 * `getRandom_type2(GET_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
 * `setCharacterPosition(GET_VALUE, POINT_VALUE)`
@@ -288,11 +308,11 @@ One of:
 * `waitForEvent()`
 * `disableInterfaceHotspot(IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
 * `loadFileAerial()`
-* `startSpeechIfSoundOff(IMMEDIATE_VALUE)`
+* `startSpeechIfSoundOff(STRING_REF)`
 * `sub1844A(GET_VALUE, IMMEDIATE_VALUE)`
 * `displayNumericCharacterVariable(GET_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE)`
-* `displayVGAFile(IMMEDIATE_VALUE)`
-* `startSpeechWithoutSpeeker(IMMEDIATE_VALUE)`
+* `displayVGAFile(STRING_REF)`
+* `startSpeechWithoutSpeaker(STRING_REF)`
 * `displayTitleScreen(IMMEDIATE_VALUE)`
 * `initGameAreaDisplay()`
 * `displayCharacterStatBar(GET_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE, IMMEDIATE_VALUE)`

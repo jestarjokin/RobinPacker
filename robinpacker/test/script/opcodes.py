@@ -63,6 +63,16 @@ Values are limited to 16 bits.
 * `%`
 * `=`
 """
+        print "### String Reference"
+        print "{}\n".format(argtypes.ARG_TYPE_LOOKUP[argtypes.STRING_REF])
+        print """This is a reference to a string value.
+
+The string value will appear in the script file; however, in the bytecode this gets
+translated to an index, to the "strings" array stored in the rules file.
+
+This means strings in the script must exactly match a string in the strings array
+in the rules file. You cannot define new strings in the script alone.
+"""
         print "## Conditionals"
         for function in opcodes.conditionalOpcodes:
             argument_string = ', '.join(
