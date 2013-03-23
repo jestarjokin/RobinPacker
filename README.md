@@ -86,7 +86,6 @@ This is similar to comments used in the Python programming language.
 
 # TODO
 
-* Support for ISOMAP.DTA.
 * Support for ROBIN.MUS. There's definitely some standard MIDI data in there, but I'm not sure about the structure of the file.
 * Separate the rules JSON into more files, maybe one for each logical section extracted.
 * Better names for many of the functions in the rules scripts.
