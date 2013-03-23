@@ -27,6 +27,7 @@ class RulesJsonExporter(object):
             def default(self, obj):
                 if isinstance(obj, robinpacker.structs.rules.RulesData):
                     result = OrderedDict()
+                    result['__json_type__'] = 'rules' # a bit gross, might need to put it in a wrapper dict
                     result['__type__'] = 'RulesData'
                     result['chunk1PointArray'] = obj.chunk1PointArray
                     result['characters'] = obj.characters

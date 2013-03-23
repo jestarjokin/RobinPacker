@@ -21,3 +21,8 @@ class RobinPackerException(Exception):
 
 class RobinScriptError(Exception):
     pass
+
+class RobinPackerJsonIdentified(Exception):
+    def __init__(self, json_type_string, *args, **kwargs):
+        super(RobinPackerJsonIdentified, self).__init__(*args, **kwargs)
+        self.json_type_string = json_type_string

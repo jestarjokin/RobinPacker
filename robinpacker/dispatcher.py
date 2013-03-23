@@ -1,5 +1,6 @@
 #! /usr/bin/python
 
+import json
 import logging
 import os
 
@@ -16,6 +17,9 @@ from unpackers.gfx import GfxBinaryUnpacker
 from structs.gfx import GfxMetadata
 from unpackers.simple import ArrayBinaryUnpacker
 from exporters.simple import ArrayJsonExporter
+from packers.simple import ArrayBinaryPacker
+from importers.simple import ArrayJsonImporter
+from util import RobinPackerException, RobinPackerJsonIdentified
 
 DEFAULT_GFX_METADATA = GfxMetadata(0xFA00, True, 320, 200)
 GFX_METADATA_LOOKUP = {
@@ -46,6 +50,15 @@ GFX_METADATA_LOOKUP = {
 }
 
 class FileDispatcher(object):
+    def __init__(self):
+        self.json_type_dispatch = {
+            'rules' : self.process_prg,
+            'gfx' : self.process_gfx,
+            #'dta' : self.process_dta,
+            'array' : self.process_dta # hmm
+            #'project' : self.process_project
+        }
+
     def dispatch_args(self, args, options):
         input_fname = args[0]
         output_fname = args[1]
@@ -56,7 +69,9 @@ class FileDispatcher(object):
             self.process_directory(input_fname, output_fname, options)
         else:
             ext = os.path.splitext(input_fname)[1].lower()
-            if ext in ('.prg', '.json'):
+            if ext in ('.json'):
+                self.dispatch_json(input_fname, output_fname, options)
+            elif ext in ('.prg'):
                 self.process_prg(input_fname, output_fname, options)
             elif ext in ('.gfx', '.vga', '.png', '.raw'):
                 self.process_gfx(input_fname, output_fname, options)
@@ -118,10 +133,49 @@ class FileDispatcher(object):
 
     def process_dta(self, input_fname, output_fname, options):
         if options.unpack:
+            logging.info('Unpacking %s to %s...' % (input_fname, output_fname))
             unpacker = ArrayBinaryUnpacker()
             array_data = unpacker.unpack(input_fname)
             exporter = ArrayJsonExporter()
             exporter.export(array_data, output_fname)
         else:
-            # crap
-            pass # TODO
+            logging.info('Packing %s to %s...' % (input_fname, output_fname))
+            importer = ArrayJsonImporter()
+            array_data = importer.import_file(input_fname)
+            packer = ArrayBinaryPacker()
+            packer.pack(array_data, output_fname)
+
+    def dispatch_json(self, input_fname, output_fname, options):
+        if options.unpack:
+            raise RobinPackerException('Tried to dispatch a JSON file when unpacking! HOW?! "{}"'.format(
+                input_fname
+            ))
+        else:
+            detector = JsonTypeDetector()
+            json_type = detector.detect_json_type(input_fname)
+            self.json_type_dispatch[json_type](input_fname, output_fname, options)
+
+
+class JsonTypeDetector(object):
+    def __init__(self):
+        pass
+
+    def detect_json_type(self, json_file_name):
+        with file(json_file_name, 'r') as json_file:
+            try:
+                # TODO: I believe this still loads the entire file into memory first.
+                # Need some way of quickly "peeking" into the JSON file, probably involves
+                # writing a custom decoder and/or scanner.
+                json.load(json_file, object_hook=self._decode_objects)
+            except RobinPackerJsonIdentified, e:
+                return e.json_type_string
+        raise RobinPackerException('Could not identify the type of JSON in file "{}".'.format(
+            json_file_name
+        ))
+
+    def _decode_objects(self, dct):
+        try:
+            json_type = dct['__json_type__']
+            raise RobinPackerJsonIdentified(json_type)
+        except KeyError:
+            return dct

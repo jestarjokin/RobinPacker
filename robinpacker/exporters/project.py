@@ -13,7 +13,8 @@ class ProjectExporter(object):
         accepted_extensions = {
             '.prg' : '.json',
             '.gfx' : '.png',
-            '.vga' : '.png'
+            '.vga' : '.png',
+            '.dta' : '.json'
         }
         file_list = (d for d in os.listdir(in_dir)
             if os.path.isfile(os.path.join(in_dir, d))
@@ -31,6 +32,9 @@ class ProjectExporter(object):
             elif ext in {'.gfx', '.vga'}:
                 mkdir(os.path.join(out_dir, 'images'))
                 out_fname = os.path.join('images', out_fname)
+            elif ext == '.dta':
+                mkdir(os.path.join(out_dir, 'data'))
+                out_fname = os.path.join('data', out_fname)
             file_dispatcher.dispatch_file(os.path.join(in_dir, in_fname), os.path.join(out_dir, out_fname), options)
             project_files.append(
                     {

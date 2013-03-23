@@ -13,6 +13,7 @@ except ImportError:
 class GfxJsonExporter(object):
     def export(self, gfx_data, output_file_name):
         output = OrderedDict()
+        output['__json_type__'] = 'gfx' # a bit gross, might need to put it in a wrapper dict
         output['__type__'] = 'GfxData'
         output['original_file_name'] = gfx_data.original_file_name
         metadata = OrderedDict()
