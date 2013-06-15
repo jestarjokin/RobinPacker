@@ -5,10 +5,14 @@ import json
 import os.path
 
 try:
-    import Image
+    from PIL import Image
 except ImportError:
-    Image = None
+    try:
+        import Image
+    except ImportError:
+        Image = None
 
+from robinpacker.util import RobinPackerException
 
 class GfxJsonExporter(object):
     def export(self, gfx_data, output_file_name):
@@ -38,7 +42,7 @@ class GfxRawExporter(object):
 class GfxPngExporter(object):
     def export(self, gfx_data, output_file_name):
         if not Image:
-            raise Exception('The Python Imaging Library (PIL) must be installed to save PNG files.') # TODO: use a custom exception
+            raise RobinPackerException('The Python Imaging Library (PIL) must be installed to save PNG files.')
         output = Image.new('P', (gfx_data.metadata.width, gfx_data.metadata.height))
         output.putpalette(gfx_data.palette)
         output.putdata(gfx_data.data)

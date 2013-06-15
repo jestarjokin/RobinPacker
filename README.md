@@ -8,8 +8,8 @@ RobinPacker is based on work by the ScummVM team to re-implement the Robin Hood 
 
 * Install Python 2.7. Other versions of Python are not supported!
 * Install the following Python packages (I suggest using PIP to do so):
-** PyParsing >= 1.5.6
-** PIL (Python Imaging Library) >= 1.1.6
+    * PyParsing >= 1.5.6
+    * PIL (Python Imaging Library) >= 1.1.6. Pillow should also work.
 * Download the source code and put it somewhere
 * Run "robinpacker.py" from the command line (see the "Usage" section for more info)
 
