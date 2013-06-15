@@ -1,0 +1,6 @@
+include docs/*
+include README*
+include requirements.txt
+include robinpacker.py
+recursive-include robinpacker/** *.*
+recursive-exclude robinpacker/** *.git* *.pyc
