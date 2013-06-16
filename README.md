@@ -4,13 +4,35 @@ Packs and unpacks game resources for the old DOS game, The Adventures of Robin H
 
 RobinPacker is based on work by the ScummVM team to re-implement the Robin Hood engine.
 
+# Where to get it
+
+RobinPacker lives at this address:
+    [http://www.jestarjokin.net/apps/robinpacker]
+
+There is a live source code repository and issue tracker available on GitHub:
+    [http://www.github.com/jestarjokin/robinpacker]
+
 # Installation
+
+## From Windows Binaries
+
+* Make sure you have the Microsoft Visual C++ 2008 Runtime installed (and make sure it's not SP1!). If not, download
+  and run the installer from Microsoft:
+    * [https://www.microsoft.com/en-us/download/confirmation.aspx?id=29]
+* Download the latest version of RobinPacker from here:
+    * [http://www.jestarjokin.net/apps/robinpacker/bin]
+* Extract the files to a directory somewhere
+* Run "robinpacker.exe"
+
+## From Source Code
 
 * Install Python 2.7. Other versions of Python are not supported!
 * Install the following Python packages (I suggest using PIP to do so):
     * PyParsing >= 1.5.6
     * PIL (Python Imaging Library) >= 1.1.6. Pillow should also work.
-* Download the source code and put it somewhere
+* Download the latest version of RobinPacker from here:
+    * [http://www.jestarjokin.net/apps/robinpacker/src]
+* Extract the files to a directory somewhere
 * Run "robinpacker.py" from the command line (see the "Usage" section for more info)
 
 # Usage
