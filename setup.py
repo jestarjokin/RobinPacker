@@ -59,34 +59,50 @@ class BuildInstaller(py2exe.build_exe.py2exe, object):
     def run(self):
         global APP_NAME
         global APP_VERSION
+        APP_PREFIX = '-'.join((APP_NAME, APP_VERSION))
+        SDIST_ZIP_NAME = '{}.zip'.format(APP_PREFIX)
+        BIN_NAME = '{}.win32'.format(APP_PREFIX)
+
         super(BuildInstaller, self).run()
 
         logging.info('Performing post-build actions.')
+        # Remove build dir
         try:
             shutil.rmtree('build')
         except Exception:
             logging.exception('Could not delete "build" directory.')
 
-        return_code = subprocess.call(os.path.join(os.getcwd(), 'compress.bat'), cwd='dist')
+        # Re-compress the library.zip
+        return_code = subprocess.call([os.path.join(os.getcwd(), 'compress.bat'), 'library'], cwd='dist')
         if return_code != 0:
             logging.error("Extra compression returned an error, check if the packaged files are okay.")
 
-        app_prefix = '-'.join((APP_NAME, APP_VERSION))
-        ignores = shutil.ignore_patterns('{}.zip'.format(app_prefix))
+        # Move the files to a temp directory
+        ignores = shutil.ignore_patterns(SDIST_ZIP_NAME)
         shutil.copytree(  # requires py2exe to be run before sdist!
             'dist',
-            os.path.join('_temp', app_prefix),
+            os.path.join('_temp', APP_PREFIX),
             ignore=ignores
         )
-        emptydir('dist', ['{}.zip'.format(app_prefix)])
-        shutil.make_archive('dist/{}.win32'.format(app_prefix),
+        emptydir('dist', [SDIST_ZIP_NAME])
+
+        # Archive the binary distribution
+        shutil.make_archive('dist/{}'.format(BIN_NAME),
             'zip',
             root_dir='_temp',
-            base_dir=app_prefix)
+            base_dir=APP_PREFIX)
+
+        # Delete the temp dir
         try:
             shutil.rmtree('_temp')
         except Exception:
             logging.exception('Could not delete "_temp" directory.')
+
+        # Re-compress the binary distribution archive (to minimise the file size of Python DLLs)
+        # Commented out because the gains are minimal.
+        #return_code = subprocess.call([os.path.join(os.getcwd(), 'compress.bat'), BIN_NAME], cwd='dist')
+        #if return_code != 0:
+        #    logging.error("Extra compression returned an error, check if the packaged files are okay.")
 
 logging.info('Building distribution.')
 
@@ -94,7 +110,7 @@ opts = {
     'py2exe': {
         'includes': [],
         "dll_excludes" : [],
-        'bundle_files': 1,
+        'bundle_files': 2,
         'compressed' : False,
         'optimize' : 2,
     }
