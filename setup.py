@@ -43,6 +43,18 @@ def find_packages(path, prefix):
         if ispkg:
             yield name
 
+def emptydir(top, ignored_files=[]):
+    ignored_files = set(ignored_files)
+    if top == '/' or top == "\\":
+        return
+    else:
+        for root, dirs, files in os.walk(top, topdown=False):
+            for name in files:
+                if not name in ignored_files:
+                    os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+
 class BuildInstaller(py2exe.build_exe.py2exe, object):
     def run(self):
         global APP_NAME
@@ -60,7 +72,13 @@ class BuildInstaller(py2exe.build_exe.py2exe, object):
             logging.error("Extra compression returned an error, check if the packaged files are okay.")
 
         app_prefix = '-'.join((APP_NAME, APP_VERSION))
-        os.renames('dist', os.path.join('_temp', app_prefix)) # requires py2exe to be run before sdist!
+        ignores = shutil.ignore_patterns('{}.zip'.format(app_prefix))
+        shutil.copytree(  # requires py2exe to be run before sdist!
+            'dist',
+            os.path.join('_temp', app_prefix),
+            ignore=ignores
+        )
+        emptydir('dist', ['{}.zip'.format(app_prefix)])
         shutil.make_archive('dist/{}.win32'.format(app_prefix),
             'zip',
             root_dir='_temp',
