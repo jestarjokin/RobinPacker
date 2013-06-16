@@ -7,7 +7,6 @@
 # http://opensource.org/licenses/MIT
 
 from distutils.core import setup
-from glob import glob
 import logging
 import os
 from pkgutil import walk_packages
@@ -37,35 +36,6 @@ data_files = [
     ('docs', ['docs/LICENSE.txt'])
 ]
 
-MANIFEST = """
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<assembly xmlns="urn:schemas-microsoft-com:asm.v1"
-manifestVersion="1.0">
-<assemblyIdentity
-    version="{}.1.0"
-    processorArchitecture="x86"
-    name="{}"
-    type="win32"
-/>
-<description>{}</description>
-<dependency>
-    <dependentAssembly>
-        <assemblyIdentity
-            type="win32"
-            name="Microsoft.VC90.CRT"
-            version="9.0.21022.8"
-            processorArchitecture="X86"
-            publicKeyToken="1fc8b3b9a1e18e3b"
-            language="*"
-        />
-    </dependentAssembly>
-</dependency>
-""".format(
-    APP_VERSION,
-    APP_NAME,
-    APP_DESCRIPTION,
-)
-
 def find_packages(path, prefix):
     yield prefix
     prefix += "."
@@ -77,14 +47,6 @@ class BuildInstaller(py2exe.build_exe.py2exe, object):
     def run(self):
         global APP_NAME
         global APP_VERSION
-        # Make sure you have this version of "Microsoft Visual C++ 2008 Redistributable Package" installed:
-        # http://www.microsoft.com/downloads/details.aspx?FamilyID=9b2da534-3e03-4391-8a4d-074b9f2bc1bf&displaylang=en
-        # (also check that you have the legal ability to redistribute these files)
-        data_files.extend([
-            ("VC90", glob(r'C:\Windows\winsxs\x86_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.21022.8_none_bcb86ed6ac711f91\*.*')),
-            ("VC90", glob(r'C:\Windows\winsxs\Manifests\x86_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.21022.8_none_bcb86ed6ac711f91.manifest'))
-        ])
-
         super(BuildInstaller, self).run()
 
         logging.info('Performing post-build actions.')
@@ -132,7 +94,6 @@ setup(
     console=[
         {
             "script": "robinpacker.py",
-            "other_resources": [(24, 1, MANIFEST)]
         },
     ],
     options=opts,
